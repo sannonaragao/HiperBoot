@@ -1,0 +1,11 @@
+buildscript {
+    ext {
+        springBootVersion = '3.2.0'
+        springDepMngmnt = '1.1.4'
+
+        javaVersion = '17'
+        lombokVersion = '1.18.30'
+        hsqldbVersion = '2.6.1'
+        testContainers = '1.19.3'
+    }
+}

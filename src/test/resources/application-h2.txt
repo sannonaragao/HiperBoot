@@ -1,0 +1,30 @@
+
+spring:
+  application:
+    name: HiperBoot
+    main:
+      banner-mode: LOG
+
+    output:
+      ansi:
+        enabled: ALWAYS
+
+  datasource:
+    url: jdbc:hsqldb:mem:testdb;sql.syntax_ora=true
+    initialization-mode: always
+    data: classpath:data.sql
+
+  jpa:
+    defer-datasource-initialization: true
+    generate-ddl: true
+    hibernate:
+      show_sql: true
+      ddl-auto: "create"
+      dialect: org.hibernate.dialect.H2Dialect
+
+logging:
+  level:
+    web: INFO
+    org.hibernate: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql: INFO
