@@ -94,7 +94,7 @@ public abstract class BaseFilterGenerator<T> {
                     predicate = cb.isNull(rootField);
                 }
                 else {
-                    predicate = cb.equal(rootField, castToRequiredType(rootFieldType, input.getValue()));
+                    predicate = cb.equal(rootFieldUpper, castToRequiredType(rootFieldType, input.getValue()));
                 }
                 break;
             case LIKE:
@@ -107,10 +107,8 @@ public abstract class BaseFilterGenerator<T> {
                 if (String.class.isAssignableFrom(rootFieldType)) {
                     predicate = getInPredicate(input, cb, root);
                 }else{
-//                    return cb.greaterThanOrEqualTo((Expression<String>)rootFieldUpper, cb.literal((String) getFrom(input, rootFieldType)));
                     predicate = cb.in(root.get(input.getField())).value(castToRequiredType(rootFieldType, input.getValues()));
                 }
-
                 break;
             case BETWEEN:
                 if (input.getControlFlag().contains(DATE_TIME_SPLIT)) {
@@ -156,6 +154,13 @@ public abstract class BaseFilterGenerator<T> {
             case GREATER_THAN:
                 if ((Enum.class.isAssignableFrom(input.getType())) ||
                     (Boolean.class.isAssignableFrom(input.getType()) || boolean.class.isAssignableFrom(input.getType()))) {
+                    log.warn("Can't perform a {} operation with a {} for field {}", input.getOperator(), input.getType(), input.getField());
+                    throw new HiperBootException(String.format("Can't perform a %s operation with a %s for field %s", input.getOperator(),
+                            input.getType(), input.getField()));
+                }
+                break;
+            case LIKE:
+                if (!String.class.isAssignableFrom(input.getType())) {
                     log.warn("Can't perform a {} operation with a {} for field {}", input.getOperator(), input.getType(), input.getField());
                     throw new HiperBootException(String.format("Can't perform a %s operation with a %s for field %s", input.getOperator(),
                             input.getType(), input.getField()));
@@ -273,7 +278,7 @@ public abstract class BaseFilterGenerator<T> {
         String stringValue = value.toString();
 
         if (String.class.isAssignableFrom(fieldType)) {
-            return stringValue;
+            return stringValue.toUpperCase();
         }
         else if (Double.class.isAssignableFrom(fieldType)) {
             return Double.valueOf(stringValue);

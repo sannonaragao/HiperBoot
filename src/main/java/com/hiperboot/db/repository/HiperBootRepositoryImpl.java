@@ -23,23 +23,15 @@ import com.hiperboot.db.filter.HiperBootFilterGenerator;
 import com.hiperboot.pagination.PageRequestBuilder;
 
 import jakarta.persistence.EntityManager;
-import lombok.Setter;
 
 public class HiperBootRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> implements HiperBootRepository<T, ID> {
 
     private final BaseFilterGenerator<T> filterGenerator;
-//    private final EntityManager entityManager;
 
     public HiperBootRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager em) {
         super(entityInformation, em);
-//        this.entityManager = em;
         this.filterGenerator = new HiperBootFilterGenerator();
     }
-
-//    @Override
-//    public List<T> getByHiperBootFilter() {
-//        return this.findAll();
-//    }
 
     @Override
     public List<T> getByHiperBootFilter(Class<T> entity, Map<String, Object> filters) {
@@ -79,20 +71,4 @@ public class HiperBootRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> i
         }
         return specifications;
     }
-
-//    private Class<?> entityType;
-//    public void setEntityType(Class<?> et) {
-//        this.entityType = et;
-//    }
-//    protected Class<T> getEntityType() {
-//        // TODO: Check if it works witht he interface instead of HiperBootRepositoryImpl.class
-//        Class<T>[] type = (Class<T>[]) GenericTypeResolver.resolveTypeArguments(this.getClass(), HiperBootRepositoryImpl.class);
-//        if (isNull(type)) {
-//            throw new NullPointerException("Generic type is null");
-//        }
-//        if (type.length < 1) {
-//            throw new NullPointerException("Generic type is empty");
-//        }
-//        return type[0];
-//    }
 }

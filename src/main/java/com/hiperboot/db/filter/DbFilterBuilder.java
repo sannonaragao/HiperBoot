@@ -53,17 +53,14 @@ public final class DbFilterBuilder {
     public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList, Map<String, Object> fieldList,
             LogicalOperator logicalOperator) {
         final var filters = new ArrayList<DbFilter>();
-        mapFilter.forEach((key, value) ->
+        mapFilter.forEach((key, filterValue) ->
         {
-
             LogicalOperator logicalWrapper = null;
             if (PageRequestBuilder.PAGE_PAR.equals(key)) {
                 log.debug("Empty _page was sent as filter");
             }
             else if (key.equalsIgnoreCase("NOT")) {
                 logicalWrapper = NOT;
-
-//                LinkedHashMap<String, Object> wrapList = (LinkedHashMap) mapFilter.get(key);
 
                 LinkedHashMap<String, Object> wrapList = new LinkedHashMap<>();
                 if (mapFilter.get(key) instanceof Map) {
@@ -78,48 +75,43 @@ public final class DbFilterBuilder {
                 }
             }
             else {
-                processFilterItem(errorList, fieldList, logicalOperator, filters, key, value, logicalWrapper);
+                processFilterItem(errorList, fieldList, logicalOperator, filters, key, filterValue, logicalWrapper);
             }
         });
         return filters;
     }
 
     private static void processFilterItem(List<String> errorList, Map<String, Object> fieldList, LogicalOperator logicalOperator,
-            ArrayList<DbFilter> filters, String key, Object value, LogicalOperator logicalWrapper) {
+            ArrayList<DbFilter> filters, String key, Object filterValue, LogicalOperator logicalWrapper) {
         key = toCamelCase(key);
-        log.trace("Filter attributes: {} : {}", key, value);
+        log.trace("Filter attributes: {} : {}", key, filterValue);
         if (isNull(fieldList.get(key))) {
             errorList.add(key);
             return;
         }
         final var filter = DbFilter.builder()
                 .field(key)
-                .operator(identifyOperator(value))
+                .operator(identifyOperator(filterValue))
                 .entity(isFieldEntity(fieldList.get(key)))
                 .type(getFieldType(fieldList, key))
-                .value(value)
+                .value(filterValue)
                 .logicalOperator(logicalOperator)
                 .wrappedLogicalOperator(logicalWrapper)
-                .controlFlag(getFlags(value))
+                .controlFlag(getFlags(filterValue))
                 .build();
 
         //TODO: REMOVE DEPENDENCY FROM THE PACKAGE.  Test moving ENUM inside the .db.entity
-        if ((filter.isEntity() && value instanceof Map) || (fieldList.get(key).toString().contains(".db.entity."))) {
+        if ((filter.isEntity() && filterValue instanceof Map) || (fieldList.get(key).toString().contains(".db.entity."))) {
             filter.setOperator(QueryOperator.JOIN);
         }
 
-        if (!filter.isEntity() && isFieldEntity(value) && !(fieldList.get(key).toString().contains(".db.entity."))) {
+        if (!filter.isEntity() && isFieldEntity(filterValue) && !(fieldList.get(key).toString().contains(".db.entity."))) {
             filter.setOperator(QueryOperator.IN);
             filter.setValue(null);
-            var listValues = convertToList(filter, value);
-            //            if(String.class.isAssignableFrom(filter.getType())){
-            //                for (Object listValue : listValues) {
-            //                    listValue = listValue.toString().toUpperCase();
-            //                }   //.forEach( v -> v.toString().toUpperCase());
-            //            }
+            var listValues = convertToList(filter, filterValue);
             filter.setValues(listValues);
         }
-        else if (value instanceof LinkedHashMap map) {
+        else if (filterValue instanceof LinkedHashMap map) {
             betweenFilter(map, filter);
         }
         filters.add(filter);
@@ -210,7 +202,6 @@ public final class DbFilterBuilder {
 
         for (int i = classes.size() - 1; i >= 0; i--) {
             for (Field f : classes.get(i).getDeclaredFields()) {
-                //                if (BaseEntity.class.isAssignableFrom(f.getType())) {
                 if (nonNull(f.getType().getAnnotation(Entity.class))) {
                     fields.put(f.getName(), new ArrayList<>());
                     for (Field nestedField : f.getType().getDeclaredFields()) {

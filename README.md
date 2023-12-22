@@ -8,14 +8,23 @@ TEST
     BASIC - Done
     CONTAINERS - H2, Postgres
     ENHANCE TESTS - Work In Progress
-        - IN/NOT IN - ok
-        - Equals/not -  ok
-        - Greater Than - ok
-        - Smaller than - ok
-        - Between
-        - LIKE
-        - Null
+        Filters
+            - IN/NOT IN - ok
+            - Equals/not -  ok
+            - Greater Than - ok
+            - Smaller than - ok
+            - Between - ok
+            - LIKE - Ok
+            - Null - Ok
+            
+        Joins
+            - ManyToOne - wip
+            - OneToMany - 
+        Sort - 
+        Pagination - 
 
+
+    
         CREATE HELPERS
             Sorting Helpers
             Map helpers - Work in Progress (HBUtils)
@@ -27,7 +36,7 @@ TEST
         ---------------
 REFACTORY / IMPROVEMENT (
     CONVERSION - done
-    FILTER GENERATOR - 
+    FILTER GENERATOR - wip
     STOP USING .db.entity Package - 
     Use different data types than list (set, etc)) -
     USE DIFFERENT DATATYPES FOR PRIMARY KEY -

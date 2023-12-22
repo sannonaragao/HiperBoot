@@ -5,7 +5,6 @@ import static com.hiperboot.pagination.PageRequestBuilder.LIMIT;
 import static com.hiperboot.pagination.PageRequestBuilder.OFFSET;
 import static com.hiperboot.pagination.PageRequestBuilder.PAGE_PAR;
 import static com.hiperboot.pagination.PageRequestBuilder.SORT;
-import static com.hiperboot.pagination.PageRequestBuilder.createDefaultPage;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
@@ -25,6 +24,12 @@ public class HBUtil {
             return Map.of(column, values[0]);
         }
         return Map.of(column, List.of(values));
+    }
+
+    public static Map<String, Object> columnIsNull(String column) {
+        var f = new LinkedHashMap<String, Object>();
+        f.put(column, null);
+        return f;
     }
 
     public static Map<String, Object> columnNotEqualValues(String column, String... values) {
@@ -48,13 +53,14 @@ public class HBUtil {
 
         return new LinkedHashMap<>(Map.of(column, new LinkedHashMap<>(Map.of("from", from, "to", to))));
     }
-    public static Map<String, Object> getPageWithStartSizeSort(Integer start, Integer size, String sort){
+
+    public static Map<String, Object> getPageWithStartSizeSort(Integer start, Integer size, String sort) {
         Map<String, Object> pageHead = new HashMap<>();
 
         Map<String, Object> page = new HashMap<>();
         page.put(LIMIT, isNull(size) ? DEFAULT_LIMIT : size);
         page.put(OFFSET, isNull(start) ? 0 : start);
-        if( nonNull(sort)){
+        if (nonNull(sort)) {
             page.put(SORT, sort);
         }
         pageHead.put(PAGE_PAR, page);
@@ -62,8 +68,20 @@ public class HBUtil {
 
     }
 
-    public  static Map<String, Object> addPageToFilter(Map<String, Object> filter, Map<String, Object> page){
-        var resultFilter = isNull(filter) ? new LinkedHashMap<String, Object>(): new LinkedHashMap<>(filter);
+    public static Map<String, Object> columnSubEntity(String keyString, Object value) {
+        String[] keys = keyString.split("\\.");
+
+        Map<String, Object> currentMap = new LinkedHashMap<>();
+        currentMap.put(keys[keys.length - 1], value);
+
+        for (int i = keys.length - 2; i >= 0; i--) {
+            currentMap = new LinkedHashMap<>(Map.of(keys[i], currentMap));
+        }
+        return currentMap;
+    }
+
+    public static Map<String, Object> addPageToFilter(Map<String, Object> filter, Map<String, Object> page) {
+        var resultFilter = isNull(filter) ? new LinkedHashMap<String, Object>() : new LinkedHashMap<>(filter);
         resultFilter.put(PAGE_PAR, page.get(PAGE_PAR));
         return resultFilter;
     }

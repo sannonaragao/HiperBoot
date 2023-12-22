@@ -42,8 +42,13 @@ dependencies {
 //    testImplementation group: 'org.junit.platform', name: 'junit-platform-suite-api', version: '1.10.1'
 
     testImplementation "org.assertj:assertj-core:3.17.2"
-    implementation("org.projectlombok:lombok:${lombokVersion}")
+
+    compileOnly("org.projectlombok:lombok:${lombokVersion}")
     annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
+
+
 }
 
 tasks.named('test') {
