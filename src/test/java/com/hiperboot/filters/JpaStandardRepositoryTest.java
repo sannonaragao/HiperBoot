@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.hiperboot.db.entity.ParentTable;
+import com.hiperboot.pckagetest.ParentTable;
 import com.hiperboot.db.repository.ParentTableStandardRepository;
 
 @SpringBootTest

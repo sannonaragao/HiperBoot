@@ -13,7 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -23,8 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import com.hiperboot.BaseTestClass;
-import com.hiperboot.db.entity.ParentTable;
-import com.hiperboot.db.entity.SomeTable;
+import com.hiperboot.pckagetest.ParentTable;
 import com.hiperboot.db.repository.ParentTableHiperBootRepository;
 
 import lombok.extern.log4j.Log4j2;
@@ -49,6 +47,17 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
     }
 
     @Test
+    void caseInsensitiveEqualsFilterStringColumnTest() {
+        List<ParentTable> results = level01Repository.getByHiperBootFilter(ParentTable.class, columnEqualValues("colString", "abc"));
+        assertThat(results).hasSize(2);
+
+        for (ParentTable row : results) {
+            var valResult = row.getColString();
+            assertThat(valResult.toUpperCase()).isEqualTo("ABC");
+        }
+    }
+
+    @Test
     void randomEqualsFilterAllColumnsTest() {
         ParentTable randomRow = getRandomRow();
         List<ParentTable> results;
@@ -57,7 +66,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
         for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
             Field field = entry.getValue();
             String columnName = entry.getKey();
-            if (columnsToIgnore.contains(columnName)) {
+            if (columnsToIgnore.contains(columnName) || columnName.equals("colString") ) {
                 continue;
             }
             var val = getFieldValue(randomRow, field);
@@ -153,7 +162,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             }
             var val1 = getFieldValue(randomRow1, field).toString();
             var val2 = getFieldValue(randomRow2, field).toString();
-            System.out.printf("columnName %s  /  val1 %s  / val2 %s \n", columnName, val1, val2);
+//            System.out.printf("columnName %s  /  val1 %s  / val2 %s \n", columnName, val1, val2);
             results = level01Repository.getByHiperBootFilter(ParentTable.class, columnNotEqualValues(columnName, val1, val2));
 
             assertThat(results).isNotEmpty();

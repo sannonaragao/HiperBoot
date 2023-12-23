@@ -240,7 +240,7 @@ public abstract class BaseFilterGenerator<T> {
                 for (var filterEntry : filterMap.entrySet()) {
                     final var filterKey = toCamelCase(filterEntry.getKey());
                     if (filterKey.equals(childEntry.getKey())) {
-                        andPredicates.add(addChildrenPredicate(cb, joinChildren, child, filterKey, filterEntry.getValue()));
+                        andPredicates.add(addChildrenPredicate(cb, joinChildren, child, filterKey));
                     }
                 }
             }
@@ -251,8 +251,7 @@ public abstract class BaseFilterGenerator<T> {
     private Predicate addChildrenPredicate(CriteriaBuilder cb,
             From<Object, Object> joinChildren,
             LinkedHashMap<String, Object> childFilter,
-            String field,
-            Object value) {
+            String field) {
         Expression<Comparable> rootField = joinChildren.get(field);
         Class<?> rootFieldType = rootField.getJavaType();
         var fieldJoinArg = joinChildren.get(field);

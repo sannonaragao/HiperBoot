@@ -26,7 +26,7 @@ import jakarta.persistence.EntityManager;
 
 public class HiperBootRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> implements HiperBootRepository<T, ID> {
 
-    private final BaseFilterGenerator<T> filterGenerator;
+    private final HiperBootFilterGenerator filterGenerator;
 
     public HiperBootRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager em) {
         super(entityInformation, em);

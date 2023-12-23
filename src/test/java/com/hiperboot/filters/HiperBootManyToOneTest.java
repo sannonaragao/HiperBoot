@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.hiperboot.BaseTestClass;
 import com.hiperboot.db.entity.MainTable;
-import com.hiperboot.db.entity.ParentTable;
+import com.hiperboot.pckagetest.ParentTable;
 import com.hiperboot.db.repository.MainTableHiperBootRepository;
 import com.hiperboot.db.repository.ParentTableHiperBootRepository;
 

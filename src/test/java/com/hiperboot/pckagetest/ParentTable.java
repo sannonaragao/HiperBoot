@@ -1,4 +1,4 @@
-package com.hiperboot.db.entity;
+package com.hiperboot.pckagetest;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.hiperboot.db.StatusEnum;
+import com.hiperboot.db.entity.ChildTable;
+import com.hiperboot.db.entity.SomeTable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

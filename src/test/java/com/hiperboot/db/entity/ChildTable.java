@@ -2,6 +2,8 @@ package com.hiperboot.db.entity;
 
 import java.util.List;
 
+import com.hiperboot.pckagetest.ParentTable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;

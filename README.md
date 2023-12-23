@@ -18,8 +18,8 @@ TEST
             - Null - Ok
             
         Joins
-            - ManyToOne - wip
-            - OneToMany - 
+            - ManyToOne - done
+            - OneToMany - done
         Sort - 
         Pagination - 
 
@@ -37,9 +37,7 @@ TEST
 REFACTORY / IMPROVEMENT (
     CONVERSION - done
     FILTER GENERATOR - wip
-    STOP USING .db.entity Package - 
     Use different data types than list (set, etc)) -
-    USE DIFFERENT DATATYPES FOR PRIMARY KEY -
     Use COMPARABLE (see TODO in code)
     
 

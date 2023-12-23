@@ -6,6 +6,7 @@ import static com.hiperboot.util.StringUtils.toCamelCase;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -45,12 +46,12 @@ public final class DbFilterBuilder {
         return filters;
     }
 
-    public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList,
-            Map<String, Object> fieldList) {
+    public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList, Map<String, Object> fieldList) {
         return buildFilter(mapFilter, errorList, fieldList, LogicalOperator.AND);
     }
 
-    public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList, Map<String, Object> fieldList,
+    public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList,
+            Map<String, Object> fieldList,
             LogicalOperator logicalOperator) {
         final var filters = new ArrayList<DbFilter>();
         mapFilter.forEach((key, filterValue) ->
@@ -71,7 +72,8 @@ public final class DbFilterBuilder {
                 }
 
                 for (Object oKey : wrapList.keySet()) {
-                    processFilterItem(errorList, fieldList, logicalOperator, filters, oKey.toString(), wrapList.get(oKey), logicalWrapper);
+                    processFilterItem(errorList, fieldList, logicalOperator, filters, oKey.toString(), wrapList.get(oKey),
+                            logicalWrapper);
                 }
             }
             else {
@@ -81,7 +83,8 @@ public final class DbFilterBuilder {
         return filters;
     }
 
-    private static void processFilterItem(List<String> errorList, Map<String, Object> fieldList, LogicalOperator logicalOperator,
+    private static void processFilterItem(List<String> errorList, Map<String, Object> fieldList,
+            LogicalOperator logicalOperator,
             ArrayList<DbFilter> filters, String key, Object filterValue, LogicalOperator logicalWrapper) {
         key = toCamelCase(key);
         log.trace("Filter attributes: {} : {}", key, filterValue);
@@ -100,12 +103,11 @@ public final class DbFilterBuilder {
                 .controlFlag(getFlags(filterValue))
                 .build();
 
-        //TODO: REMOVE DEPENDENCY FROM THE PACKAGE.  Test moving ENUM inside the .db.entity
-        if ((filter.isEntity() && filterValue instanceof Map) || (fieldList.get(key).toString().contains(".db.entity."))) {
+        if ((filter.isEntity() && filterValue instanceof Map) || hasAnnotation(fieldList.get(key).toString(), Entity.class)) {
             filter.setOperator(QueryOperator.JOIN);
         }
 
-        if (!filter.isEntity() && isFieldEntity(filterValue) && !(fieldList.get(key).toString().contains(".db.entity."))) {
+        if (!filter.isEntity() && isFieldEntity(filterValue) && !hasAnnotation(fieldList.get(key).toString(), Entity.class)) {
             filter.setOperator(QueryOperator.IN);
             filter.setValue(null);
             var listValues = convertToList(filter, filterValue);
@@ -218,5 +220,21 @@ public final class DbFilterBuilder {
             }
         }
         return fields;
+    }
+
+    public static boolean hasAnnotation(String className, Class<? extends Annotation> annotationClass) {
+        try {
+            if (className.startsWith("class ")) {
+                className = className.substring(6);
+            }
+            Class<?> cls = Class.forName(className);
+            return cls.isAnnotationPresent(annotationClass);
+
+        }
+        catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            log.warn("ClassNotFoundException in hasAnnotation.");
+            return false;
+        }
     }
 }
