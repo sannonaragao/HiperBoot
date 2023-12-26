@@ -10,10 +10,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.data.util.Pair;
@@ -50,8 +52,7 @@ public final class DbFilterBuilder {
         return buildFilter(mapFilter, errorList, fieldList, LogicalOperator.AND);
     }
 
-    public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList,
-            Map<String, Object> fieldList,
+    public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList, Map<String, Object> fieldList,
             LogicalOperator logicalOperator) {
         final var filters = new ArrayList<DbFilter>();
         mapFilter.forEach((key, filterValue) ->
@@ -70,10 +71,8 @@ public final class DbFilterBuilder {
                         wrapList.put(String.valueOf(entry.getKey()), entry.getValue());
                     }
                 }
-
                 for (Object oKey : wrapList.keySet()) {
-                    processFilterItem(errorList, fieldList, logicalOperator, filters, oKey.toString(), wrapList.get(oKey),
-                            logicalWrapper);
+                    processFilterItem(errorList, fieldList, logicalOperator, filters, oKey.toString(), wrapList.get(oKey), logicalWrapper);
                 }
             }
             else {
@@ -83,8 +82,7 @@ public final class DbFilterBuilder {
         return filters;
     }
 
-    private static void processFilterItem(List<String> errorList, Map<String, Object> fieldList,
-            LogicalOperator logicalOperator,
+    private static void processFilterItem(List<String> errorList, Map<String, Object> fieldList, LogicalOperator logicalOperator,
             ArrayList<DbFilter> filters, String key, Object filterValue, LogicalOperator logicalWrapper) {
         key = toCamelCase(key);
         log.trace("Filter attributes: {} : {}", key, filterValue);
@@ -173,7 +171,8 @@ public final class DbFilterBuilder {
                 return false;
             }
         }
-        return field instanceof List || field instanceof Map || (field instanceof Class<?> clazz && clazz.isAssignableFrom(List.class));
+        return field instanceof Collection || field instanceof Map || (field instanceof Class<?> clazz && (
+                clazz.isAssignableFrom(List.class) || clazz.isAssignableFrom(Set.class)));
     }
 
     private static void betweenFilter(LinkedHashMap value, DbFilter filter) {
@@ -226,6 +225,9 @@ public final class DbFilterBuilder {
         try {
             if (className.startsWith("class ")) {
                 className = className.substring(6);
+            }
+            if (className.startsWith("interface ")) {
+                className = className.substring(10);
             }
             Class<?> cls = Class.forName(className);
             return cls.isAnnotationPresent(annotationClass);

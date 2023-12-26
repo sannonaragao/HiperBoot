@@ -41,6 +41,8 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public abstract class BaseFilterGenerator<T> {
 
+    private String ERROR_MSG_OPERATION = "Can't perform a {} operation with a {} for field {}";
+
     public Specification<T> getSpecificationFromFilters(List<DbFilter> filters) {
         if (isNull(filters) || filters.isEmpty()) {
             return null;
@@ -65,8 +67,8 @@ public abstract class BaseFilterGenerator<T> {
             Expression<Comparable> rootField = root.get(input.getField());
             Class<?> rootFieldType = rootField.getJavaType();
             Expression<?> rootFieldUpper = String.class.isAssignableFrom(input.getType()) ?
-                                                criteriaBuilder.upper(root.get(input.getField())) :
-                                                root.get(input.getField());
+                                           criteriaBuilder.upper(root.get(input.getField())) :
+                                           root.get(input.getField());
 
             return getPredicate(input, root, criteriaBuilder, rootField, rootFieldType, rootFieldUpper);
         };
@@ -106,7 +108,8 @@ public abstract class BaseFilterGenerator<T> {
 
                 if (String.class.isAssignableFrom(rootFieldType)) {
                     predicate = getInPredicate(input, cb, root);
-                }else{
+                }
+                else {
                     predicate = cb.in(root.get(input.getField())).value(castToRequiredType(rootFieldType, input.getValues()));
                 }
                 break;
@@ -121,7 +124,8 @@ public abstract class BaseFilterGenerator<T> {
                 break;
             case GREATER_THAN:
                 if (String.class.isAssignableFrom(rootFieldType)) {
-                    predicate = cb.greaterThanOrEqualTo((Expression<String>)rootFieldUpper, cb.literal((String) getFrom(input, rootFieldType)));
+                    predicate = cb.greaterThanOrEqualTo((Expression<String>) rootFieldUpper,
+                            cb.literal((String) getFrom(input, rootFieldType)));
                 }
                 else {
                     predicate = cb.greaterThanOrEqualTo(root.get(input.getField()), getFrom(input, rootFieldType));
@@ -146,22 +150,23 @@ public abstract class BaseFilterGenerator<T> {
         switch (input.getOperator()) {
             case IN:
                 if (Boolean.class.isAssignableFrom(input.getType()) || boolean.class.isAssignableFrom(input.getType())) {
-                    log.warn("Can't perform a {} operation with a {} for field {}", input.getOperator(), input.getType(), input.getField());
+                    log.warn(ERROR_MSG_OPERATION, input.getOperator(), input.getType(), input.getField());
                     throw new HiperBootException(
-                            String.format("Can't perform a %s operation with a %s for field %s", input.getOperator(), input.getType(), input.getField()));
+                            String.format("Can't perform a %s operation with a %s for field %s", input.getOperator(), input.getType(),
+                                    input.getField()));
                 }
                 break;
             case GREATER_THAN:
                 if ((Enum.class.isAssignableFrom(input.getType())) ||
                     (Boolean.class.isAssignableFrom(input.getType()) || boolean.class.isAssignableFrom(input.getType()))) {
-                    log.warn("Can't perform a {} operation with a {} for field {}", input.getOperator(), input.getType(), input.getField());
+                    log.warn(ERROR_MSG_OPERATION, input.getOperator(), input.getType(), input.getField());
                     throw new HiperBootException(String.format("Can't perform a %s operation with a %s for field %s", input.getOperator(),
                             input.getType(), input.getField()));
                 }
                 break;
             case LIKE:
                 if (!String.class.isAssignableFrom(input.getType())) {
-                    log.warn("Can't perform a {} operation with a {} for field {}", input.getOperator(), input.getType(), input.getField());
+                    log.warn(ERROR_MSG_OPERATION, input.getOperator(), input.getType(), input.getField());
                     throw new HiperBootException(String.format("Can't perform a %s operation with a %s for field %s", input.getOperator(),
                             input.getType(), input.getField()));
                 }
@@ -177,16 +182,6 @@ public abstract class BaseFilterGenerator<T> {
         }
         return inClause;
     }
-
-//    private Expression<?> getLiteralFrom(CriteriaBuilder cb, DbFilter input, Class<?> rootFieldType) {
-//        if (String.class.isAssignableFrom(rootFieldType)) {
-//            cb.literal((String) getFrom(input, rootFieldType));
-//        }
-//        else if (Integer.class.isAssignableFrom(rootFieldType)) {
-//            cb.literal((Integer) getFrom(input, rootFieldType));
-//        }
-//        return cb.literal(getFrom(input, rootFieldType));
-//    }
 
     private Predicate getDateTimeSplit(DbFilter input, CriteriaBuilder cb, Expression<Comparable> rootField, Class<?> rootFieldType) {
         final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
@@ -333,11 +328,6 @@ public abstract class BaseFilterGenerator<T> {
         else if (BigInteger.class.isAssignableFrom(fieldType)) {
             return new BigInteger(stringValue);
         }
-
-        final var specificCast = trySpecificCast(fieldType, value);
-        if (nonNull(specificCast)) {
-            return specificCast;
-        }
         log.error("Impossible to castToRequiredType. Type {} wasn't found.", fieldType.toString());
         return value;
     }
@@ -366,34 +356,6 @@ public abstract class BaseFilterGenerator<T> {
         }
         return lists;
     }
-
-    public Object trySpecificCast(Class<?> fieldType, Object value) {
-        return null;
-    }
-
-    protected Long extractLong(Object value, String field) {
-        if (value instanceof LinkedHashMap) {
-            return Long.valueOf(((LinkedHashMap) value).get(field).toString());
-        }
-        return Long.valueOf(value.toString());
-    }
-
-    //    private BaseEntity castToEntity(Class<?> fieldType, Object value) {
-    //        Class<?> clazz = null;
-    //        try {
-    //            clazz = Class.forName(fieldType.getName());
-    //            Constructor<?> ctor = clazz.getConstructor();
-    //            var cp = (BaseEntity) ctor.newInstance();
-    //            cp.setId(extractLong(value, ID));
-    //            return cp;
-    //        }
-    //        catch (ClassNotFoundException | NoSuchMethodException | InvocationTargetException | InstantiationException
-    //               | IllegalAccessException e) {
-    //            log.error("Error casting to entity {}.", fieldType.getCanonicalName());
-    //            throw new RuntimeException(isNull(clazz) ? BaseEntity.class : clazz,
-    //                    Collections.singletonList(fieldType.getCanonicalName()));
-    //        }
-    //    }
 
     private Object castToEnum(Class<?> fieldType, String value) {
         Object[] possibleValues = fieldType.getEnumConstants();

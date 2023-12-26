@@ -22,7 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import com.hiperboot.BaseTestClass;
-import com.hiperboot.pckagetest.ParentTable;
+import com.hiperboot.db.entity.ParentTable;
 import com.hiperboot.db.repository.ParentTableHiperBootRepository;
 
 import lombok.extern.log4j.Log4j2;
@@ -121,14 +121,12 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             var val1 = getFieldValue(randomRow1, field);
             var val2 = getFieldValue(randomRow2, field);
 
-            //            System.out.printf("columnName %s  /  val1 %s  / val2 %s \n", columnName, val1, val2);
             results = level01Repository.getByHiperBootFilter(ParentTable.class,
                     columnEqualValues(columnName, val1.toString(), val2.toString()));
             assertThat(results).isNotEmpty();
 
             for (ParentTable row : results) {
                 var valResult = getFieldValue(row, field);
-                //                System.out.printf("columnName %s  /  val1 %s  / val2 %s / Result %s\n", columnName, val1, val2, valResult);
                 if (columsToBeCaseInsensitive.contains(columnName)) {
                     assertThat(valResult.toString().toUpperCase()).isIn(val1.toString().toUpperCase(), val2.toString().toUpperCase());
                 }
@@ -162,7 +160,6 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             }
             var val1 = getFieldValue(randomRow1, field).toString();
             var val2 = getFieldValue(randomRow2, field).toString();
-//            System.out.printf("columnName %s  /  val1 %s  / val2 %s \n", columnName, val1, val2);
             results = level01Repository.getByHiperBootFilter(ParentTable.class, columnNotEqualValues(columnName, val1, val2));
 
             assertThat(results).isNotEmpty();
@@ -189,13 +186,11 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             Field field = entry.getValue();
             var valFrom = getFieldValue(randomRow, field);
             results = level01Repository.getByHiperBootFilter(ParentTable.class, columnGreaterThan(columnName, valFrom.toString()));
-            System.out.printf("columnName %s  /  valFrom %s  \n", columnName, valFrom);
 
             assertThat(results).isNotEmpty();
 
             for (ParentTable row : results) {
                 var valResult = getFieldValue(row, field);
-                System.out.printf("columnName %s  /  valFrom %s  / valResult %s \n", columnName, valFrom, valResult);
                 if (columnName.equals("colString")) {
                     assertThat(((Comparable) valResult.toString().toUpperCase()).compareTo(
                             valFrom.toString().toUpperCase())).isGreaterThanOrEqualTo(0);
@@ -222,13 +217,11 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             Field field = entry.getValue();
             var valFrom = getFieldValue(randomRow, field);
             results = level01Repository.getByHiperBootFilter(ParentTable.class, columnSmallerThan(columnName, valFrom.toString()));
-            System.out.printf("columnName %s  /  valFrom %s  \n", columnName, valFrom);
 
             assertThat(results).isNotEmpty();
 
             for (ParentTable row : results) {
                 var valResult = getFieldValue(row, field);
-                System.out.printf("columnName %s  /  valFrom %s  / valResult %s \n", columnName, valFrom, valResult);
                 if (columnName.equals("colString")) {
                     assertThat(((Comparable) valResult.toString().toUpperCase()).compareTo(
                             valFrom.toString().toUpperCase())).isLessThanOrEqualTo(0);
@@ -264,7 +257,6 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
 
             for (ParentTable row : results) {
                 var valResult = getFieldValue(row, field);
-                System.out.printf("columnName %s  /  valFrom %s  / valResult %s \n", columnName, valFrom, valResult);
                 if (columnName.equals("colString")) {
                     assertThat((Comparable) valResult.toString().toUpperCase()).isBetween(valFrom.toString().toUpperCase(),
                             valTo.toString().toUpperCase());
@@ -290,7 +282,6 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             if (columnName.equals("id") || columnsToIgnore.contains(columnName)) {
                 continue;
             }
-            System.out.printf("columnName %s \n", columnName);
             List<ParentTable> results = level01Repository.getByHiperBootFilter(ParentTable.class, columnIsNull(columnName));
             assertThat(results).hasSize(1);
         }

@@ -31,3 +31,8 @@ INSERT INTO gran_child_table ( gran_name, something, child_table_name ) VALUES (
 INSERT INTO gran_child_table ( gran_name, something, child_table_name ) VALUES ( '1A2 GRAN NAME', 'Nothing2', '1A Name');
 INSERT INTO gran_child_table ( gran_name, something, child_table_name ) VALUES ( '1A3 GRAN NAME', 'Nothing3', '1A Name');
 INSERT INTO gran_child_table ( gran_name, something, child_table_name ) VALUES ( '1B GRAN NAME', 'Nothing4', '1B Name');
+
+INSERT INTO author (name) VALUES ('J.K. Rowling');
+
+INSERT INTO book (title, author_id, price) VALUES ('Harry Potter and the Sorcerers Stone', 1, 1.2);
+INSERT INTO book (title, author_id, price) VALUES ('Harry Potter and the Chamber of Secrets', 1, 2);

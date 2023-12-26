@@ -2,8 +2,6 @@ package com.hiperboot.db.entity;
 
 import java.util.List;
 
-import com.hiperboot.pckagetest.ParentTable;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -33,5 +31,4 @@ public class ChildTable {
     @OneToMany
     @JoinColumn(name = "child_table_name", updatable = false, insertable = false)
     private List<GranChildTable> granChild;
-
 }

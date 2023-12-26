@@ -1,4 +1,4 @@
-package com.hiperboot.pckagetest;
+package com.hiperboot.db.entity;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
