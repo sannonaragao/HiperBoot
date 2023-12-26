@@ -37,7 +37,6 @@ TEST
 REFACTORY / IMPROVEMENT (
     CONVERSION - done
     FILTER GENERATOR - wip
-    Use different data types than list (set, etc)) -
     Use COMPARABLE (see TODO in code)
     
 

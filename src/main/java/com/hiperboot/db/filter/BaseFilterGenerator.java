@@ -110,7 +110,7 @@ public abstract class BaseFilterGenerator<T> {
                     predicate = getInPredicate(input, cb, root);
                 }
                 else {
-                    predicate = cb.in(root.get(input.getField())).value(castToRequiredType(rootFieldType, input.getValues()));
+                    predicate = cb.in(root.get(input.getField())).value(castToList(rootFieldType, (List<String>) input.getValues()));
                 }
                 break;
             case BETWEEN:
@@ -261,13 +261,9 @@ public abstract class BaseFilterGenerator<T> {
         return getPredicate(filters.get(0), (From<T, T>) joinChildren, cb, rootField, rootFieldType, rootFieldUpper);
     }
 
-    // TODO: Test with Comparable
-    private Object castToRequiredType(Class<?> fieldType, Object value) {
+    private Comparable<?> castToRequiredType(Class<?> fieldType, Object value) {
         if (isNull(value)) {
             return null;
-        }
-        if (value instanceof List) {
-            return castToRequiredType(fieldType, (List<String>) value);
         }
         String stringValue = value.toString();
 
@@ -287,7 +283,7 @@ public abstract class BaseFilterGenerator<T> {
             return new BigDecimal(stringValue);
         }
         else if (Enum.class.isAssignableFrom(fieldType)) {
-            return castToEnum(fieldType, stringValue);
+            return (Comparable<?>) castToEnum(fieldType, stringValue);
         }
         else if (LocalDate.class.isAssignableFrom(fieldType)) {
             return LocalDate.parse(stringValue);
@@ -329,7 +325,7 @@ public abstract class BaseFilterGenerator<T> {
             return new BigInteger(stringValue);
         }
         log.error("Impossible to castToRequiredType. Type {} wasn't found.", fieldType.toString());
-        return value;
+        return (Comparable<?>) value;
     }
 
     private Character safelyConvertToCharacter(String stringValue) {
@@ -349,10 +345,15 @@ public abstract class BaseFilterGenerator<T> {
         return Integer.valueOf(stringValue);
     }
 
-    private Object castToRequiredType(Class<?> fieldType, List<String> value) {
+    private List<Object> castToList(Class<?> fieldType, List<String> value) {
         List<Object> lists = new ArrayList<>();
         for (Object s : value) {
-            lists.add(castToRequiredType(fieldType, s));
+            if (s instanceof List) {
+                lists.add(castToList(fieldType, (List<String>) s));
+            }
+            else {
+                lists.add(castToRequiredType(fieldType, s));
+            }
         }
         return lists;
     }
@@ -370,10 +371,10 @@ public abstract class BaseFilterGenerator<T> {
     }
 
     private Comparable getFrom(DbFilter input, Class<?> rootFieldType) {
-        return (Comparable) castToRequiredType(rootFieldType, input.getValues().get(0));
+        return castToRequiredType(rootFieldType, input.getValues().get(0));
     }
 
     private Comparable getTo(DbFilter input, Class<?> rootFieldType) {
-        return (Comparable) castToRequiredType(rootFieldType, input.getValues().get(1));
+        return castToRequiredType(rootFieldType, input.getValues().get(1));
     }
 }
