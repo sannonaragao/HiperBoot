@@ -42,12 +42,9 @@ REFACTORY / IMPROVEMENT (
 
 TEST AS A LIB
 
-DEFINE LICENCE
+1DEFINE LICENCE
 
 DOCUMENT ON GITHUB
 
 PUT ON MAVEN
 -------------------------
-FAR IN THE FUTURE:
-  - Enhanced joins, like Composed PK
-  - 
