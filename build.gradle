@@ -1,0 +1,127 @@
+buildscript {
+    ext {
+    }
+    dependencies {
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.0"
+        apply from: './gradle/globalProperties.gradle'
+    }
+}
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+    id 'org.springframework.boot' version "${springBootVersion}"
+    id 'io.spring.dependency-management' version "${springDepMngmnt}"
+    id 'com.diffplug.spotless' version '6.22.0'
+}
+
+group = 'com.github.sannon'
+version = '0.4.0'
+
+java {
+    sourceCompatibility = "${javaVersion}"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0'
+    testImplementation group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.8.0'
+    testImplementation group: 'org.hsqldb', name: 'hsqldb', version: "${hsqldbVersion}"
+
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation group: 'org.testcontainers', name: 'postgresql'
+    testImplementation group: 'org.testcontainers', name: 'testcontainers', version: "${testContainers}"
+    testImplementation group: 'org.postgresql', name: 'postgresql', version: '42.7.1'
+    testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: "${testContainers}"
+    testImplementation "org.assertj:assertj-core:3.17.2"
+
+    compileOnly("org.projectlombok:lombok:${lombokVersion}")
+    annotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+spotless {
+    java {
+        licenseHeaderFile "${project.rootDir}/license.txt"
+        target 'src/**/*.java'
+    }
+}
+
+// Task to generate sources JAR
+task sourceJar(type: Jar) {
+    from sourceSets.main.allSource
+    archiveClassifier.set('sources')
+}
+
+// Task to generate Javadoc JAR
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    from javadoc.destinationDir
+    archiveClassifier.set('javadoc')
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact sourceJar
+            artifact javadocJar
+
+            // POM configuration
+            pom {
+                name = 'HiperBoot'
+                description = 'Retrieve lists or pages of data filtered and sorted in a given criteria using Spring Data'
+                url = 'https://github.com/sannonaragao/HiperBoot'
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'sannon'
+                        name = 'Sannon Aragão'
+                        email = 'sannon.aragao@gmail.com'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:github.com/sannonaragao/HiperBoot.git'
+                    developerConnection = 'scm:git:ssh://github.com/sannonaragao/HiperBoot.git'
+                    url = 'https://github.com/sannonaragao/HiperBoot'
+                }
+            }
+        }
+    }
+
+    // Define repository for publishing
+    repositories {
+        maven {
+            // URL for Sonatype OSSRH staging
+            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+
+            credentials {
+                username = 'xxxx'
+                password = 'xxxxx'
+            }
+        }
+    }
+}
+
+// Signing configuration
+signing {
+    sign publishing.publications.mavenJava
+}

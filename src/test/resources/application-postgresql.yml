@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    initialization-mode: always
+    data: classpath:data.sql
+
+  jpa:
+    defer-datasource-initialization: true
+    generate-ddl: true
+    hibernate:
+      show_sql: true
+      ddl-auto: "create"
+
+logging:
+  level:
+    web: INFO
+    org.hibernate: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.type.descriptor.sql: INFO
+    org.springframework.jdbc.datasource.init.ScriptUtils: INFO
