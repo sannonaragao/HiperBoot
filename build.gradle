@@ -14,8 +14,6 @@ plugins {
     id 'com.diffplug.spotless' version '6.22.0'
     id 'com.vanniktech.maven.publish' version '0.26.0'
 }
-group = 'io.github.sannon'
-version = '0.4.1'
 
 java {
     sourceCompatibility = "${javaVersion}"
