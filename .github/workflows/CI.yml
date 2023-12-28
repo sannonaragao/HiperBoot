@@ -15,6 +15,9 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
+      - name: Set executable permissions for Gradle Wrapper
+        run: chmod +x ./gradlew
+        
       - uses: gradle/gradle-build-action@v2.9.0
 
       - name: Build
@@ -32,7 +35,10 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
-
+          
+      - name: Set executable permissions for Gradle Wrapper
+        run: chmod +x ./gradlew
+        
       - uses: gradle/gradle-build-action@v2.9.0
 
       - name: Publish Artifacts
