@@ -14,9 +14,11 @@ plugins {
     id 'org.springframework.boot' version "${springBootVersion}"
     id 'io.spring.dependency-management' version "${springDepMngmnt}"
     id 'com.diffplug.spotless' version '6.22.0'
+    id 'com.vanniktech.maven.publish' version '0.26.0'
+
 }
 
-group = 'com.github.sannon'
+group = 'io.github.sannon'
 version = '0.4.0'
 
 java {
@@ -25,6 +27,9 @@ java {
 
 repositories {
     mavenCentral()
+    maven {
+        url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+    }
 }
 
 dependencies {
@@ -32,7 +37,6 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0'
     testImplementation group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.8.0'
     testImplementation group: 'org.hsqldb', name: 'hsqldb', version: "${hsqldbVersion}"
-
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation group: 'org.testcontainers', name: 'postgresql'
@@ -53,75 +57,90 @@ tasks.named('test') {
 
 spotless {
     java {
-        licenseHeaderFile "${project.rootDir}/license.txt"
+        licenseHeaderFile "${project.rootDir}/LICENSE.txt"
         target 'src/**/*.java'
     }
 }
+import com.vanniktech.maven.publish.SonatypeHost
 
-// Task to generate sources JAR
-task sourceJar(type: Jar) {
-    from sourceSets.main.allSource
-    archiveClassifier.set('sources')
+mavenPublishing {
+    publishToMavenCentral(SonatypeHost.S01)
+
+    signAllPublications()
 }
 
-// Task to generate Javadoc JAR
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    from javadoc.destinationDir
-    archiveClassifier.set('javadoc')
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-            artifact sourceJar
-            artifact javadocJar
-
-            // POM configuration
-            pom {
-                name = 'HiperBoot'
-                description = 'Retrieve lists or pages of data filtered and sorted in a given criteria using Spring Data'
-                url = 'https://github.com/sannonaragao/HiperBoot'
-
-                licenses {
-                    license {
-                        name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-
-                developers {
-                    developer {
-                        id = 'sannon'
-                        name = 'Sannon Aragão'
-                        email = 'sannon.aragao@gmail.com'
-                    }
-                }
-
-                scm {
-                    connection = 'scm:git:github.com/sannonaragao/HiperBoot.git'
-                    developerConnection = 'scm:git:ssh://github.com/sannonaragao/HiperBoot.git'
-                    url = 'https://github.com/sannonaragao/HiperBoot'
-                }
-            }
-        }
-    }
-
-    // Define repository for publishing
-    repositories {
-        maven {
-            // URL for Sonatype OSSRH staging
-            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
-
-            credentials {
-                username = 'xxxx'
-                password = 'xxxxx'
-            }
-        }
-    }
-}
-
-// Signing configuration
-signing {
-    sign publishing.publications.mavenJava
-}
+//// Task to generate sources JAR
+//task sourceJar(type: Jar) {
+//    from sourceSets.main.allSource
+//    archiveClassifier.set('sources')
+//}
+//
+//// Task to generate Javadoc JAR
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    from javadoc.destinationDir
+//    archiveClassifier.set('javadoc')
+//}
+//
+//publishing {
+//    publications {
+//        mavenJava(MavenPublication) {
+//            from components.java
+//            artifact sourceJar
+//            artifact javadocJar
+//
+//            // POM configuration
+//            pom {
+//                name = 'HiperBoot'
+//                description = 'Retrieve lists or pages of data filtered and sorted in a given criteria using Spring Data'
+//                url = 'https://github.com/sannonaragao/HiperBoot'
+//
+//                licenses {
+//                    license {
+//                        name = 'The Apache License, Version 2.0'
+//                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+//                    }
+//                }
+//
+//                developers {
+//                    developer {
+//                        id = 'sannon'
+//                        name = 'Sannon Aragão'
+//                        email = 'sannon.aragao@gmail.com'
+//                    }
+//                }
+//
+//                scm {
+//                    connection = 'scm:git:github.com/sannonaragao/HiperBoot.git'
+//                    developerConnection = 'scm:git:ssh://github.com/sannonaragao/HiperBoot.git'
+//                    url = 'https://github.com/sannonaragao/HiperBoot'
+//                }
+//            }
+//        }
+//    }
+//
+//    // Define repository for publishing
+//    repositories {
+//        maven {
+//            // URL for Sonatype OSSRH staging
+//            url = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+//
+//            credentials {
+//                username = System.getenv('MVN_USER')
+//                password = System.getenv('MVN_PWD')
+//            }
+//        }
+//    }
+//}
+//
+//// Check if signing should be done
+//if (project.hasProperty('signing.keyId')) {
+//    signing {
+//        useInMemoryPgpKeys(findProperty('signing.keyId'), findProperty('signing.secretKeyRingFile'), findProperty('signing.password'))
+//        sign publishing.publications
+//    }
+//}
+//
+//// Signing configuration
+//signing {
+//    sign publishing.publications.mavenJava
+//}
