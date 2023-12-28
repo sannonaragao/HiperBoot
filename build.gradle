@@ -13,11 +13,10 @@ plugins {
     id 'io.spring.dependency-management' version "${springDepMngmnt}"
     id 'com.diffplug.spotless' version '6.22.0'
     id 'com.vanniktech.maven.publish' version '0.26.0'
-
 }
-
+apply plugin: 'signing'
 group = 'io.github.sannon'
-version = '0.4.0'
+version = '0.4.1'
 
 java {
     sourceCompatibility = "${javaVersion}"
