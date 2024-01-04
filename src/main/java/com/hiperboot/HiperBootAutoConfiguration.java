@@ -13,13 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository;
+package com.hiperboot;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import com.hiperboot.db.repository.HiperBootRepositoryFactoryBean;
+
 @Configuration
+@ConditionalOnClass(HiperBootRepositoryFactoryBean.class)
 @EnableJpaRepositories(repositoryFactoryBeanClass = HiperBootRepositoryFactoryBean.class)
-public class HiperBootRepositoryConfig {
-    // Configuration if needed
+public class HiperBootAutoConfiguration {
+    
 }
