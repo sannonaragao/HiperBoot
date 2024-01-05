@@ -57,13 +57,13 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
     @Test
     void testGetByFilter() {
         Map<String, Object> filter = Collections.emptyMap();
-        List<ParentTable> results = level01Repository.getByHiperBootFilter(ParentTable.class, Map.of("colString", "RandomString1"));
+        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, Map.of("colString", "RandomString1"));
         assertThat(results).isNotEmpty();
     }
 
     @Test
     void caseInsensitiveEqualsFilterStringColumnTest() {
-        List<ParentTable> results = level01Repository.getByHiperBootFilter(ParentTable.class, columnEqualValues("colString", "abc"));
+        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, columnEqualValues("colString", "abc"));
         assertThat(results).hasSize(2);
 
         for (ParentTable row : results) {
@@ -85,7 +85,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
                 continue;
             }
             var val = getFieldValue(randomRow, field);
-            results = level01Repository.getByHiperBootFilter(ParentTable.class, columnEqualValues(columnName, val.toString()));
+            results = level01Repository.hiperBootFilter(ParentTable.class, columnEqualValues(columnName, val.toString()));
             assertThat(results).isNotEmpty();
 
             for (ParentTable row : results) {
@@ -109,7 +109,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             }
 
             var val = getFieldValue(randomRow, field);
-            results = level01Repository.getByHiperBootFilter(ParentTable.class, columnNotEqualValues(columnName, val.toString()));
+            results = level01Repository.hiperBootFilter(ParentTable.class, columnNotEqualValues(columnName, val.toString()));
             assertThat(results).isNotEmpty();
 
             for (ParentTable row : results) {
@@ -136,7 +136,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             var val1 = getFieldValue(randomRow1, field);
             var val2 = getFieldValue(randomRow2, field);
 
-            results = level01Repository.getByHiperBootFilter(ParentTable.class,
+            results = level01Repository.hiperBootFilter(ParentTable.class,
                     columnEqualValues(columnName, val1.toString(), val2.toString()));
             assertThat(results).isNotEmpty();
 
@@ -155,7 +155,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
 
     @Test
     void randomInCaseInsensitiveFilterStringTest() {
-        List<ParentTable> results = level01Repository.getByHiperBootFilter(ParentTable.class, columnEqualValues("colString", "abc", "xxx"));
+        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, columnEqualValues("colString", "abc", "xxx"));
         assertThat(results).hasSize(2);
     }
 
@@ -175,7 +175,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             }
             var val1 = getFieldValue(randomRow1, field).toString();
             var val2 = getFieldValue(randomRow2, field).toString();
-            results = level01Repository.getByHiperBootFilter(ParentTable.class, columnNotEqualValues(columnName, val1, val2));
+            results = level01Repository.hiperBootFilter(ParentTable.class, columnNotEqualValues(columnName, val1, val2));
 
             assertThat(results).isNotEmpty();
 
@@ -200,7 +200,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
 
             Field field = entry.getValue();
             var valFrom = getFieldValue(randomRow, field);
-            results = level01Repository.getByHiperBootFilter(ParentTable.class, columnGreaterThan(columnName, valFrom.toString()));
+            results = level01Repository.hiperBootFilter(ParentTable.class, columnGreaterThan(columnName, valFrom.toString()));
 
             assertThat(results).isNotEmpty();
 
@@ -231,7 +231,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
 
             Field field = entry.getValue();
             var valFrom = getFieldValue(randomRow, field);
-            results = level01Repository.getByHiperBootFilter(ParentTable.class, columnSmallerThan(columnName, valFrom.toString()));
+            results = level01Repository.hiperBootFilter(ParentTable.class, columnSmallerThan(columnName, valFrom.toString()));
 
             assertThat(results).isNotEmpty();
 
@@ -260,13 +260,13 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             }
             Field field = entry.getValue();
             var filter = addPageToFilter(null, getPageWithStartSizeSort(null, null, columnName));
-            Page<ParentTable> pageResults = level01Repository.getByHiperBootPageFilter(ParentTable.class, filter);
+            Page<ParentTable> pageResults = level01Repository.hiperBootPageFilter(ParentTable.class, filter);
 
             assertThat(pageResults).isNotEmpty();
             var valFrom = getFieldValue(pageResults.getContent().get(1), field);
             var valTo = getFieldValue(pageResults.getContent().get(pageResults.getContent().size() - 2), field);
 
-            results = level01Repository.getByHiperBootFilter(ParentTable.class,
+            results = level01Repository.hiperBootFilter(ParentTable.class,
                     columnBetween(columnName, valFrom.toString(), valTo.toString()));
             assertThat(results).isNotEmpty();
 
@@ -285,7 +285,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
 
     @Test
     void randomLikeFilterAllColumnsTest() {
-        List<ParentTable> results = level01Repository.getByHiperBootFilter(ParentTable.class, columnEqualValues("colString", "%Ab%"));
+        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, columnEqualValues("colString", "%Ab%"));
         assertThat(results).hasSize(2);
     }
 
@@ -297,21 +297,21 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             if (columnName.equals("id") || columnsToIgnore.contains(columnName)) {
                 continue;
             }
-            List<ParentTable> results = level01Repository.getByHiperBootFilter(ParentTable.class, columnIsNull(columnName));
+            List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, columnIsNull(columnName));
             assertThat(results).hasSize(1);
         }
     }
 
     @Test
     void manyToOneTest() {
-        List<ParentTable> results = level01Repository.getByHiperBootFilter(ParentTable.class, columnSubEntity("someTable.name", "NAme c"));
+        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, columnSubEntity("someTable.name", "NAme c"));
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getSomeTable().getName()).isEqualTo("Name C");
     }
 
     @Test
     void oneToManyTest() {
-        List<ParentTable> results = level01Repository.getByHiperBootFilter(ParentTable.class, columnSubEntity("children.number", "30"));
+        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, columnSubEntity("children.number", "30"));
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getChildren()).hasSize(4);
     }

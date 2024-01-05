@@ -45,13 +45,13 @@ class HiperBootManyToOneTest extends BaseTestClass {
 
     @Test
     void testGetByFilter() {
-        List<ParentTable> results = level01Repository.getByHiperBootFilter(ParentTable.class, Map.of("someTable", Map.of("id", "1")));
+        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, Map.of("someTable", Map.of("id", "1")));
         assertThat(results).isNotEmpty();
     }
 
     @Test
     void manyToOneWithStringPKTest() {
-        List<MainTable> results = mainTableHiperBootRepository.getByHiperBootFilter(MainTable.class,
+        List<MainTable> results = mainTableHiperBootRepository.hiperBootFilter(MainTable.class,
                 columnSubEntity("childTable.granChild.something", "Nothing3"));
         assertThat(results).isNotEmpty();
         assertThat(results.get(0).getChildTable().getGranChild().get(0).getSomething()).isEqualTo("Nothing3");
@@ -59,7 +59,7 @@ class HiperBootManyToOneTest extends BaseTestClass {
 
     @Test
     void manyToOneWithSetTest() {
-        List<Author> results = authorHiperBootRepository.getByHiperBootFilter(Author.class, columnSubEntity("books.price", "1.2"));
+        List<Author> results = authorHiperBootRepository.hiperBootFilter(Author.class, columnSubEntity("books.price", "1.2"));
         assertThat(results).isNotEmpty();
         assertThat(results.get(0).getBooks().stream().toList().get(0).getTitle()).isEqualTo("Harry Potter and the Sorcerers Stone");
     }

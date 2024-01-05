@@ -25,5 +25,5 @@ import com.hiperboot.db.repository.HiperBootRepositoryFactoryBean;
 @ConditionalOnClass(HiperBootRepositoryFactoryBean.class)
 @EnableJpaRepositories(repositoryFactoryBeanClass = HiperBootRepositoryFactoryBean.class)
 public class HiperBootAutoConfiguration {
-    
+
 }

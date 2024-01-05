@@ -27,13 +27,11 @@ import org.springframework.data.repository.NoRepositoryBean;
 @NoRepositoryBean
 public interface HiperBootRepository<T, ID> extends JpaRepository<T, ID> {
 
-//    List<T> getByHiperBootFilter();
+    List<T> hiperBootFilter(Class<T> entity, Map<String, Object> filters);
+    Page<T> hiperBootPageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable);
+    Page<T> hiperBootPageFilter(Class<T> entity, Map<String, Object> filters);
 
-    List<T> getByHiperBootFilter(Class<T> entity, Map<String, Object> filters);
-    Page<T> getByHiperBootPageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable);
-    Page<T> getByHiperBootPageFilter(Class<T> entity, Map<String, Object> filters);
-
-    default Specification<T> getExtraCriteria(Specification<T> specifications, Class<T> type) {
+    default Specification<T> hiperBootExtraCriteria(Specification<T> specifications, Class<T> type) {
         return specifications;
     }
 
