@@ -25,7 +25,7 @@ jobs:
 
   publish:
     runs-on: ubuntu-latest
-    if: github.repository == 'sannonaragao/hiperboot' && github.ref == 'refs/heads/main'
+    if: github.repository == 'sannonaragao/hiperboot'
     needs:
       - jvm
     steps:
