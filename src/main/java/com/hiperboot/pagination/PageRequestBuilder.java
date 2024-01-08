@@ -15,12 +15,12 @@
  */
 package com.hiperboot.pagination;
 
+import static com.hiperboot.util.StringUtils.startsWith;
+import static com.hiperboot.util.StringUtils.substringAfter;
 import static com.hiperboot.util.StringUtils.toCamelCase;
+import static com.hiperboot.util.StringUtils.trim;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.lang3.StringUtils.startsWith;
-import static org.apache.commons.lang3.StringUtils.substringAfter;
-import static org.apache.commons.lang3.StringUtils.trim;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
