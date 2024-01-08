@@ -62,11 +62,3 @@ mavenPublishing {
 
     signAllPublications()
 }
-
-tasks.named('bootJar') {
-    enabled = false
-}
-
-jar {
-    archiveFileName = 'hiperboot.jar'
-}
