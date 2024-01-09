@@ -12,7 +12,7 @@ plugins {
     id 'org.springframework.boot' version "${springBootVersion}"
     id 'io.spring.dependency-management' version "${springDepMngmnt}"
     id 'com.diffplug.spotless' version '6.22.0'
-    id 'com.vanniktech.maven.publish' version '0.26.0'
+    id 'com.vanniktech.maven.publish' version '0.25.3'
 }
 
 java {
@@ -27,12 +27,12 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.14.0'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-jpa', version: "${springBootVersion}"
+
     testImplementation group: 'org.apache.commons', name: 'commons-dbcp2', version: '2.8.0'
     testImplementation group: 'org.hsqldb', name: 'hsqldb', version: "${hsqldbVersion}"
 
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: "${springBootVersion}"
     testImplementation group: 'org.testcontainers', name: 'postgresql'
     testImplementation group: 'org.testcontainers', name: 'testcontainers', version: "${testContainers}"
     testImplementation group: 'org.postgresql', name: 'postgresql', version: '42.7.1'
