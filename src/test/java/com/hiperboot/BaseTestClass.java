@@ -26,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import com.hiperboot.container.PostgresContainerConfig;
 
 @SpringBootTest
-
 public class BaseTestClass {
 
     static {
