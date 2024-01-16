@@ -43,6 +43,8 @@ import java.util.Map;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import com.hiperboot.db.persistence.RetrievalStrategy;
+import com.hiperboot.db.persistence.Strategy;
 import com.hiperboot.exception.HiperBootException;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -55,8 +57,6 @@ import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 public abstract class BaseFilterGenerator<T> {
-
-    private String ERROR_MSG_OPERATION = "Can't perform a {} operation with a {} for field {}";
 
     public Specification<T> getSpecificationFromFilters(List<DbFilter> filters) {
         if (isNull(filters) || filters.isEmpty()) {
@@ -162,6 +162,7 @@ public abstract class BaseFilterGenerator<T> {
     }
 
     private void validateTypeByOperation(DbFilter input) {
+        String ERROR_MSG_OPERATION = "Can't perform a {} operation with a {} for field {}";
         switch (input.getOperator()) {
             case IN:
                 if (Boolean.class.isAssignableFrom(input.getType()) || boolean.class.isAssignableFrom(input.getType())) {
@@ -215,7 +216,14 @@ public abstract class BaseFilterGenerator<T> {
     }
 
     private Predicate getPredicateJoin(DbFilter input, From<T, T> root, CriteriaBuilder cb) {
-        final Join<Object, Object> joinChildren = (Join<Object, Object>) root.fetch(input.getField(), JoinType.INNER);
+        Join<Object, Object> joinChildren;
+
+        if (fetchData(input.getOriginalClass(), input.getField())) {
+            joinChildren = (Join<Object, Object>) root.fetch(input.getField(), JoinType.INNER);
+        }
+        else {
+            joinChildren = root.join(input.getField(), JoinType.INNER);
+        }
 
         var filterMap = (Map<String, Object>) input.getValue();
         var childrenList = new ArrayList<LinkedHashMap<String, Object>>();
@@ -271,7 +279,7 @@ public abstract class BaseFilterGenerator<T> {
                                             joinChildren.get(field);
 
         final var errorList = new ArrayList<String>();
-        List<DbFilter> filters = buildFilter(childFilter, errorList, new HashMap<>(Map.of(field, rootFieldType)));
+        List<DbFilter> filters = buildFilter(childFilter, errorList, new HashMap<>(Map.of(field, rootFieldType)), rootFieldType);
 
         return getPredicate(filters.get(0), (From<T, T>) joinChildren, cb, rootField, rootFieldType, rootFieldUpper);
     }
@@ -391,5 +399,20 @@ public abstract class BaseFilterGenerator<T> {
 
     private Comparable getTo(DbFilter input, Class<?> rootFieldType) {
         return castToRequiredType(rootFieldType, input.getValues().get(1));
+    }
+
+    private boolean fetchData(Class<?> originalClass, String field) {
+        try {
+            Field classField = originalClass.getDeclaredField(field);
+            RetrievalStrategy retrievalStrategy = classField.getAnnotation(RetrievalStrategy.class);
+
+            if (retrievalStrategy != null) {
+                return retrievalStrategy.value() == Strategy.FETCH;
+            }
+        }
+        catch (NoSuchFieldException e) {
+            System.out.println("Field not found: " + e.getMessage());
+        }
+        return true;
     }
 }

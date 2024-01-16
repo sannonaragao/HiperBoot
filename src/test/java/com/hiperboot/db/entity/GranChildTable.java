@@ -39,6 +39,4 @@ public class GranChildTable {
     @ManyToOne
     @JoinColumn(name = "child_table_name", referencedColumnName = "name")
     private ChildTable childTable;
-
-
 }

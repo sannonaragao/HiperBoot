@@ -55,7 +55,7 @@ public final class DbFilterBuilder {
             return new ArrayList<>();
         }
         final var errorList = new ArrayList<String>();
-        final var filters = buildFilter(mapFilter, errorList, getFieldList(clazz), logicalOperator);
+        final var filters = buildFilter(mapFilter, errorList, getFieldList(clazz), logicalOperator, clazz);
 
         if (!errorList.isEmpty()) {
             throw new WrongFilterException(clazz, errorList);
@@ -63,12 +63,12 @@ public final class DbFilterBuilder {
         return filters;
     }
 
-    public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList, Map<String, Object> fieldList) {
-        return buildFilter(mapFilter, errorList, fieldList, LogicalOperator.AND);
+    public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList, Map<String, Object> fieldList, Class<?> clazz) {
+        return buildFilter(mapFilter, errorList, fieldList, LogicalOperator.AND, clazz);
     }
 
     public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList, Map<String, Object> fieldList,
-            LogicalOperator logicalOperator) {
+            LogicalOperator logicalOperator, Class<?> clazz) {
         final var filters = new ArrayList<DbFilter>();
         mapFilter.forEach((key, filterValue) ->
         {
@@ -87,18 +87,18 @@ public final class DbFilterBuilder {
                     }
                 }
                 for (Object oKey : wrapList.keySet()) {
-                    processFilterItem(errorList, fieldList, logicalOperator, filters, oKey.toString(), wrapList.get(oKey), logicalWrapper);
+                    processFilterItem(errorList, fieldList, logicalOperator, filters, oKey.toString(), wrapList.get(oKey), logicalWrapper, clazz);
                 }
             }
             else {
-                processFilterItem(errorList, fieldList, logicalOperator, filters, key, filterValue, logicalWrapper);
+                processFilterItem(errorList, fieldList, logicalOperator, filters, key, filterValue, logicalWrapper, clazz);
             }
         });
         return filters;
     }
 
     private static void processFilterItem(List<String> errorList, Map<String, Object> fieldList, LogicalOperator logicalOperator,
-            ArrayList<DbFilter> filters, String key, Object filterValue, LogicalOperator logicalWrapper) {
+            ArrayList<DbFilter> filters, String key, Object filterValue, LogicalOperator logicalWrapper, Class<?> clazz) {
         key = toCamelCase(key);
         log.trace("Filter attributes: {} : {}", key, filterValue);
         if (isNull(fieldList.get(key))) {
@@ -114,6 +114,7 @@ public final class DbFilterBuilder {
                 .logicalOperator(logicalOperator)
                 .wrappedLogicalOperator(logicalWrapper)
                 .controlFlag(getFlags(filterValue))
+                .originalClass(clazz)
                 .build();
 
         if ((filter.isEntity() && filterValue instanceof Map) || hasAnnotation(fieldList.get(key).toString(), Entity.class)) {

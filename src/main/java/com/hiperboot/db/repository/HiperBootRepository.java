@@ -24,17 +24,21 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 
+import com.hiperboot.db.domain.BasePage;
+
 @NoRepositoryBean
 public interface HiperBootRepository<T, ID> extends JpaRepository<T, ID> {
 
-//    List<T> getByHiperBootFilter();
+    List<T> hiperBootFilter(Class<T> entity, Map<String, Object> filters);
+    Page<T> hiperBootPageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable);
+    Page<T> hiperBootPageFilter(Class<T> entity, Map<String, Object> filters);
 
-    List<T> getByHiperBootFilter(Class<T> entity, Map<String, Object> filters);
-    Page<T> getByHiperBootPageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable);
-    Page<T> getByHiperBootPageFilter(Class<T> entity, Map<String, Object> filters);
+    BasePage hiperBootBasePageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable);
+    BasePage hiperBootBasePageFilter(Class<T> entity, Map<String, Object> filters);
+
 
     default Specification<T> getExtraCriteria(Specification<T> specifications, Class<T> type) {
-        return specifications;
+        return null;
     }
 
 }

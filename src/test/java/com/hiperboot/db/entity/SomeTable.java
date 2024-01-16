@@ -36,5 +36,4 @@ public class SomeTable {
 
     @Column(name = "value")
     private Integer value;
-
 }

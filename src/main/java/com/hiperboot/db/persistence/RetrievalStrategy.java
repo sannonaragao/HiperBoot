@@ -13,32 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.entity.book;
+package com.hiperboot.db.persistence;
 
-import java.util.Date;
-import java.util.Set;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
-@Entity
-@Table(name = "author")
-public class Author {
-
-    @Id
-    private Long id;
-
-    @Column(name = "name")
-    private String name;
-    private Date birthday;
-
-    @OneToMany(mappedBy = "author")
-    private Set<Book> books;
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.FIELD })
+public @interface RetrievalStrategy {
+    Strategy value() default Strategy.DEFAULT;
 }
