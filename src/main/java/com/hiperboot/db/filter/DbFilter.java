@@ -18,9 +18,11 @@ package com.hiperboot.db.filter;
 import java.util.ArrayList;
 
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+@Data
 @Getter
 @Setter
 @Builder
@@ -31,6 +33,7 @@ public class DbFilter {
     private ArrayList<?> values;
     private boolean entity;
     private Class<?> type;
+    private Class<?> originalClass;
     private LogicalOperator logicalOperator;
     private LogicalOperator wrappedLogicalOperator;
     private ArrayList<ControlFlag> controlFlag;

@@ -16,6 +16,10 @@
 package com.hiperboot.db.entity.book;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import com.hiperboot.db.persistence.RetrievalStrategy;
+import com.hiperboot.db.persistence.Strategy;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -43,7 +47,8 @@ public class Book {
 
     @ManyToOne
     @JoinColumn(name = "author_id")
+    @RetrievalStrategy(Strategy.JOIN)
     private Author author;
-
     private BigDecimal price;
+    private LocalDateTime published;
 }

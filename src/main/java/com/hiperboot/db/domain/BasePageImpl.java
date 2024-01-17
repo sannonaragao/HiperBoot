@@ -13,32 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.entity.book;
+package com.hiperboot.db.domain;
 
-import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
-@Entity
-@Table(name = "author")
-public class Author {
+public class BasePageImpl implements BasePage {
+    private final List data;
+    private final Pagination pagination;
 
-    @Id
-    private Long id;
-
-    @Column(name = "name")
-    private String name;
-    private Date birthday;
-
-    @OneToMany(mappedBy = "author")
-    private Set<Book> books;
+    public BasePageImpl(List data, Pagination pagination) {
+        this.data = data;
+        this.pagination = pagination;
+    }
 }

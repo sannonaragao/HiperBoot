@@ -24,8 +24,6 @@ import java.util.Date;
 import java.util.List;
 
 import com.hiperboot.db.StatusEnum;
-import com.hiperboot.db.entity.ChildTable;
-import com.hiperboot.db.entity.SomeTable;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -74,41 +72,21 @@ public class ParentTable {
 
     @Column(name = "col_byte")
     private Byte colByte;
-
-    @Column(name = "col_double")
     private Double colDouble;
-
-    @Column(name = "col_float")
     private Float colFloat;
-
-    @Column(name = "col_boolean")
     private Boolean colBoolean;
-
-    @Column(name = "col_char")
     private Character colChar;
-
-    @Column(name = "col_date")
     @Temporal(TemporalType.DATE)
     private Date colDate;
 
-    @Column(name = "col_time")
     @Temporal(TemporalType.TIME)
     private Date colTime;
 
-    @Column(name = "col_timestamp")
     @Temporal(TemporalType.TIMESTAMP)
     private Date colTimestamp;
-
-//    @Column(name = "col_local_date")
     private LocalDate colLocalDate;
-
-//    @Column(name = "col_local_date_time")
     private LocalDateTime colLocalDateTime;
-
-//    @Column(name = "col_big_decimal")
     private BigDecimal colBigDecimal;
-
-//    @Column(name = "col_big_integer")
     private BigInteger colBigInteger;
 
     @Column(name = "col_uuid", columnDefinition = "CHAR(36)")

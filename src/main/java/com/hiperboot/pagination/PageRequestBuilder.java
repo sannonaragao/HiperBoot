@@ -92,12 +92,9 @@ public class PageRequestBuilder {
     }
 
     public static Pageable getPageRequest(final Map<String, Object> filter) {
-        if (isNull(filter)) {
-            return null;
-        }
         final int limit = (Integer) filter.get(LIMIT);
         final int offset = (Integer) filter.get(OFFSET);
-        final List<String> sortingFields = (List<String>) filter.get("sort");
+        final List<String> sortingFields = (List<String>) filter.get(SORT);
         return getPageRequest(offset, limit, sortingFields);
     }
 
@@ -134,10 +131,10 @@ public class PageRequestBuilder {
     private static Sort.Order getOrder(String value) {
         value = toCamelCase(value);
         if (startsWith(value, "-")) {
-            return new Sort.Order(DESC, substringAfter(value, "-"));
+            return new Sort.Order(DESC, substringAfter(value, "-").trim());
         }
         else if (startsWith(value, "+")) {
-            return new Sort.Order(ASC, substringAfter(value, "+"));
+            return new Sort.Order(ASC, substringAfter(value, "+").trim());
         }
         else {
             return new Sort.Order(ASC, trim(value));

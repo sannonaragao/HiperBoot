@@ -38,8 +38,6 @@ public class MainTable {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "child_table_id" )
+    @JoinColumn(name = "child_table_id")
     private ChildTable childTable;
-
-
 }

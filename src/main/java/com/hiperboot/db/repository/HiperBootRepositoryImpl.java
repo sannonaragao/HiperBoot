@@ -25,14 +25,15 @@ import static org.springframework.data.jpa.domain.Specification.where;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 
-import com.hiperboot.db.filter.BaseFilterGenerator;
+import com.hiperboot.db.domain.BasePage;
+import com.hiperboot.db.domain.BasePageImpl;
+import com.hiperboot.db.domain.PaginationImpl;
 import com.hiperboot.db.filter.DbFilter;
 import com.hiperboot.db.filter.HiperBootFilterGenerator;
 import com.hiperboot.pagination.PageRequestBuilder;
@@ -41,44 +42,43 @@ import jakarta.persistence.EntityManager;
 
 public class HiperBootRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> implements HiperBootRepository<T, ID> {
 
-    private final HiperBootFilterGenerator filterGenerator;
+    private final HiperBootFilterGenerator<T> filterGenerator;
 
     public HiperBootRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager em) {
         super(entityInformation, em);
-        this.filterGenerator = new HiperBootFilterGenerator();
+        this.filterGenerator = new HiperBootFilterGenerator<>();
     }
 
     @Override
-    public List<T> getByHiperBootFilter(Class<T> entity, Map<String, Object> filters) {
-
+    public List<T> hiperBootFilter(Class<T> entity, Map<String, Object> filters) {
         Specification<T> specifications = getSpecification(entity, getDbFilters(entity, filters));
-        if (nonNull(specifications)) {
-            return findAll(specifications);
-        }
-        else {
-            return findAll();
-        }
+        return nonNull(specifications) ? findAll(specifications) : findAll();
     }
 
     @Override
-    public Page<T> getByHiperBootPageFilter(Class<T> entity, Map<String, Object> filters) {
-        return getByHiperBootPageFilter(entity, filters, getPageRequest(getPagination(filters)));
+    public Page<T> hiperBootPageFilter(Class<T> entity, Map<String, Object> filters) {
+        return hiperBootPageFilter(entity, filters, getPageRequest(getPagination(filters)));
     }
 
     @Override
-    public Page<T> getByHiperBootPageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable) {
-        final var pageParam = PageRequestBuilder.getPagination(filters);
+    public BasePage hiperBootBasePageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable) {
+        final var listEntities = this.hiperBootPageFilter(entity, filters, pageable);
+        return new BasePageImpl(listEntities.getContent(), new PaginationImpl(listEntities));
+    }
 
+    @Override
+    public BasePage hiperBootBasePageFilter(Class<T> entity, Map<String, Object> filters) {
+        var pageable = getPageRequest(PageRequestBuilder.extractPagination(filters));
+        return hiperBootBasePageFilter(entity, filters, pageable);
+    }
+
+    @Override
+    public Page<T> hiperBootPageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable) {
         Specification<T> specifications = getSpecification(entity, getDbFilters(entity, filters));
-        if (nonNull(specifications)) {
-            return findAll(specifications, getPageRequest(pageParam));
-        }
-        else {
-            return findAll(getPageRequest(pageParam));
-        }
+        return nonNull(specifications) ? findAll(specifications, pageable) : findAll(pageable);
     }
 
-    protected Specification<T> getSpecification(Class<T> entity, List<DbFilter> filters) {
+    private Specification<T> getSpecification(Class<T> entity, List<DbFilter> filters) {
         Specification<T> specifications = filterGenerator.getSpecificationFromFilters(filters);
         Specification<T> extraCriteria = getExtraCriteria(specifications, entity);
         if (nonNull(extraCriteria)) {

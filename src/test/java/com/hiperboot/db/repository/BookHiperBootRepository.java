@@ -13,32 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.entity.book;
+package com.hiperboot.db.repository;
 
-import java.util.Date;
-import java.util.Set;
+import org.springframework.stereotype.Repository;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import com.hiperboot.db.entity.book.Book;
 
-@Getter
-@Setter
-@Entity
-@Table(name = "author")
-public class Author {
-
-    @Id
-    private Long id;
-
-    @Column(name = "name")
-    private String name;
-    private Date birthday;
-
-    @OneToMany(mappedBy = "author")
-    private Set<Book> books;
+@Repository
+public interface BookHiperBootRepository extends HiperBootRepository<Book, Long> {
 }
