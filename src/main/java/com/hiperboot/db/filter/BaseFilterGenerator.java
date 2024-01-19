@@ -16,6 +16,12 @@
 package com.hiperboot.db.filter;
 
 import static com.hiperboot.db.filter.ControlFlag.DATE_TIME_SPLIT;
+import static com.hiperboot.db.filter.DatatypeConverter.toJavaSqlDate;
+import static com.hiperboot.db.filter.DatatypeConverter.toJavaSqlTimestamp;
+import static com.hiperboot.db.filter.DatatypeConverter.toJavaTimeInstant;
+import static com.hiperboot.db.filter.DatatypeConverter.toJavaTimeLocalDate;
+import static com.hiperboot.db.filter.DatatypeConverter.toJavaTimeLocalDateTime;
+import static com.hiperboot.db.filter.DatatypeConverter.toJavaTimeOffsetDateTime;
 import static com.hiperboot.db.filter.DbFilterBuilder.buildFilter;
 import static com.hiperboot.db.filter.LogicalOperator.AND;
 import static com.hiperboot.db.filter.LogicalOperator.NOT;
@@ -309,28 +315,28 @@ public abstract class BaseFilterGenerator<T> {
             return (Comparable<?>) castToEnum(fieldType, stringValue);
         }
         else if (LocalDate.class.isAssignableFrom(fieldType)) {
-            return LocalDate.parse(stringValue);
+            return toJavaTimeLocalDate(stringValue);
         }
         else if (OffsetDateTime.class.isAssignableFrom(fieldType)) {
-            return OffsetDateTime.parse(stringValue);
+            return toJavaTimeOffsetDateTime(stringValue);
         }
         else if (Date.class.isAssignableFrom(fieldType)) {
-            return Date.valueOf(stringValue);
+            return toJavaSqlDate(stringValue);
         }
         else if (Timestamp.class.isAssignableFrom(fieldType)) {
-            return Timestamp.valueOf(stringValue);
+            return toJavaSqlTimestamp(stringValue);
         }
         else if (Boolean.class.isAssignableFrom(fieldType) || boolean.class.isAssignableFrom(fieldType)) {
             return Boolean.parseBoolean(stringValue);
         }
         else if (Instant.class.isAssignableFrom(fieldType)) {
-            return Instant.parse(stringValue);
+            return toJavaTimeInstant(stringValue);
         }
         else if (Time.class.isAssignableFrom(fieldType)) {
             return Time.valueOf(stringValue);
         }
         else if (LocalDateTime.class.isAssignableFrom(fieldType)) {
-            return LocalDateTime.parse(stringValue);
+            return toJavaTimeLocalDateTime(stringValue);
         }
         else if (Short.class.isAssignableFrom(fieldType)) {
             return Short.valueOf(stringValue);

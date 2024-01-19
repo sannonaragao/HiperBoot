@@ -67,8 +67,7 @@ class PaginationBookTest extends BaseTestClass {
 
     @Test
     void paginationOffsetTest() {
-        var pageTest = bookHiperBootRepository.hiperBootPageFilter(Book.class,
-                hbEquals("author.id", "3").sortedBy("title, published").offset(3).limit(5));
+        var pageTest = bookHiperBootRepository.hiperBootPageFilter(Book.class, hbEquals("author.id", "3").sortedBy("title, published").offset(3).limit(5));
         assertThat(pageTest.stream().toList())
                 .extracting(Book::getTitle)
                 .isSortedAccordingTo(Comparator.naturalOrder());

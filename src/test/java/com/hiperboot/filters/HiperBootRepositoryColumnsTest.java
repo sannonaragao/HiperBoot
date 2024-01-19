@@ -19,9 +19,10 @@ import static com.hiperboot.util.HBUtils.addPageToFilter;
 import static com.hiperboot.util.HBUtils.between;
 import static com.hiperboot.util.HBUtils.getPageWithStartSizeSort;
 import static com.hiperboot.util.HBUtils.greaterThan;
+import static com.hiperboot.util.HBUtils.hbAnd;
 import static com.hiperboot.util.HBUtils.hbEquals;
 import static com.hiperboot.util.HBUtils.hbIsNull;
-import static com.hiperboot.util.HBUtils.hbNotEquals;
+import static com.hiperboot.util.HBUtils.hbNot;
 import static com.hiperboot.util.HBUtils.smallerThan;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,6 +38,8 @@ import org.springframework.data.domain.Page;
 
 import com.hiperboot.BaseTestClass;
 import com.hiperboot.db.entity.ParentTable;
+import com.hiperboot.db.entity.book.Book;
+import com.hiperboot.db.repository.BookHiperBootRepository;
 import com.hiperboot.db.repository.ParentTableHiperBootRepository;
 
 import lombok.extern.log4j.Log4j2;
@@ -46,6 +49,9 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
 
     @Autowired
     private ParentTableHiperBootRepository level01Repository;
+
+    @Autowired
+    private BookHiperBootRepository bookHiperBootRepository;
 
     private List<String> columnsGreaterThanIncompatible = List.of("colBoolean", "colStatusEnum", "someTable", "children");
     private List<String> columnsInIncompatible = List.of("colBoolean", "someTable", "children");
@@ -108,7 +114,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             }
 
             var val = getFieldValue(randomRow, field);
-            results = level01Repository.hiperBootFilter(ParentTable.class, hbNotEquals(columnName, val.toString()));
+            results = level01Repository.hiperBootFilter(ParentTable.class, hbNot(hbEquals(columnName, val.toString())));
             assertThat(results).isNotEmpty();
 
             for (ParentTable row : results) {
@@ -174,7 +180,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             }
             var val1 = getFieldValue(randomRow1, field).toString();
             var val2 = getFieldValue(randomRow2, field).toString();
-            results = level01Repository.hiperBootFilter(ParentTable.class, hbNotEquals(columnName, val1, val2));
+            results = level01Repository.hiperBootFilter(ParentTable.class, hbNot(hbEquals(columnName, val1, val2)));
 
             assertThat(results).isNotEmpty();
 
@@ -313,6 +319,44 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
         List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, hbEquals("children.number", "30"));
         assertThat(results).hasSize(1);
         assertThat(results.get(0).getChildren()).hasSize(2);
+    }
+
+    @Test
+    void likeContainsTest() {
+        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbEquals("author.name", "%eo%"));
+        assertThat(list).hasSize(13);
+    }
+
+    @Test
+    void likeEndsTest() {
+        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbEquals("author.name", "%Orwell"));
+        assertThat(list).hasSize(5);
+    }
+
+    @Test
+    void likeStartsTest() {
+        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbAnd(hbEquals("author.name", "J%"), greaterThan("price", "5")));
+        assertThat(list).hasSize(5);
+    }
+
+    @Test
+    void isNullTest() {
+        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbIsNull("price"));
+        assertThat(list).hasSize(1);
+        assertThat(list.get(0).getPrice()).isNull();
+    }
+
+    @Test
+    void isNotNullTest() {
+        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbAnd(hbEquals("author.id", "4"), hbNot(hbIsNull("price"))));
+        assertThat(list).hasSize(9);
+    }
+
+    @Test
+    void isNotInTest() {
+        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbNot(hbEquals("author.id", "1", "3", "4", "5")));
+
+        assertThat(list).hasSize(5);
     }
 
     protected ParentTable getRandomRow() {

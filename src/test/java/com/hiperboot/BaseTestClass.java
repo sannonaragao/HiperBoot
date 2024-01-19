@@ -15,6 +15,8 @@
  */
 package com.hiperboot;
 
+import static java.util.Objects.isNull;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,6 +64,10 @@ public class BaseTestClass {
         }
         if (String.class.isAssignableFrom(field.getType())) {
             v = v.toString();
+        }
+        if (isNull(v)) {
+            System.out.println(row);
+            System.out.println(field.getName());
         }
         return v;
     }

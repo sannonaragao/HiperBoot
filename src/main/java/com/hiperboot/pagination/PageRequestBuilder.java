@@ -129,7 +129,7 @@ public class PageRequestBuilder {
     }
 
     private static Sort.Order getOrder(String value) {
-        value = toCamelCase(value);
+        value = toCamelCase(value).trim();
         if (startsWith(value, "-")) {
             return new Sort.Order(DESC, substringAfter(value, "-").trim());
         }

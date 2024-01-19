@@ -106,15 +106,21 @@ public class HBUtils {
         return HBUtilBuilder.of(column, List.of(values));
     }
 
-    public static HBUtilBuilder hbIsNull(String column) {
-        return HBUtilBuilder.of(column, null);
+    public static HBUtilBuilder hbAnd(HBUtilBuilder... values) {
+        Map<String, Object> mergedMap = new HashMap<>();
+
+        for (HBUtilBuilder value : values) {
+            mergedMap.putAll(value);
+        }
+        return HBUtilBuilder.of(mergedMap);
     }
 
-    public static HBUtilBuilder hbNotEquals(String column, String... values) {
-        if (values.length == 1) {
-            return HBUtilBuilder.of("NOT", Map.of(column, values[0]));
-        }
-        return HBUtilBuilder.of("NOT", Map.of(column, List.of(values)));
+    public static HBUtilBuilder hbNot(HBUtilBuilder nested) {
+        return HBUtilBuilder.of("NOT", nested);
+    }
+
+    public static HBUtilBuilder hbIsNull(String column) {
+        return HBUtilBuilder.of(column, null);
     }
 
     public static HBUtilBuilder greaterThan(String column, String value) {
