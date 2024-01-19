@@ -1,26 +1,35 @@
 <p>
   <img src="https://github.com/sannonaragao/HiperBoot/assets/19274273/3c9ca2bd-eb98-4f18-80af-c3836f9c1518" width="100" height="100" alt="HiperBoot Logo" style="float: left; margin-right: 10px;" />
-  <span style="font-size: 24px; line-height: 100px; font-weight: bold;">HiperBoot: </span>
-  <span style="font-size: 24px; line-height: 100px;">Powerful with simplicity and efficiency</span>
+  <span style="vertical-align: middle; display: inline-block; height: 100px; line-height: 100px; font-size: 32px; font-weight: bold;">HiperBoot: </span>
+  <span style="vertical-align: middle; display: inline-block; height: 100px; line-height: 100px; font-size: 32px;">Powerful with simplicity and efficiency</span>
 </p>
 
+---
+
 ## Introduction
+***Easier than JPA Query Methods and much more powerful!***
 
-If you're working with Spring and JPA, there are two things you should know:
-1) You've always needed something like HiperBoot.
-2) From now on, it will be an essential part of your projects.
+If you're working with Spring and JPA you've always needed something like HiperBoot and from now on it will be an essential part of your projects.
 
+HiperBoot simplifies query building by utilizing existing relationships between entities, providing advanced features like filtering, pagination, and sorting. Designed for compatibility with various SQL databases, it delivers optimized query performance and strong protection against SQL Injection attacks.
 
-HiperBoot is an innovative library designed to enhance your interaction with Hibernate mappings. It simplifies the process of executing queries, offering advanced features like filtering, pagination, and sorting. Built for compatibility with multiple SQL databases, HiperBoot ensures optimized queries and robust protection against SQL Injection attacks.
-
-## Installation and Getting Started
+---
 
 ### Integrating HiperBoot into Your Project
 
-Integrating HiperBoot into your Spring Boot application is straightforward. You can add HiperBoot to your project using Maven or Gradle.
+To use HiperBoot in your Spring Boot application is straightforward and takes just 3 steps:
+1) add the dependency 
+2) inform the Repository Factory 
+3) extend your repositories from HiperBootRepository instead of JpaRepository (or similar).   
 
-#### Maven
+You can add into your current Spring Boot application easily.
+ can add HiperBoot to your project using Maven or Gradle.
 
+### Step 1 - Adding dependency
+
+Just, use your favorite build tool.
+
+**Maven**
 ```xml
 <dependency>
     <groupId>io.github.sannonaragao</groupId>
@@ -28,16 +37,13 @@ Integrating HiperBoot into your Spring Boot application is straightforward. You 
     <version>latest.release</version>
 </dependency>
 ```
-
-#### Gradle
-
+**Gradle**
 ```gradle
 implementation group: 'io.github.sannonaragao', name: 'hiperboot', version: 'latest.release'
 ```
 
-### Setting Up
-
-To start using HiperBoot, include the following essential setup in your Spring Boot application:
+### Step 2 - inform the Repository Factory
+This configuration is vital as it sets up the necessary repository factory bean class for HiperBoot.
 
 ```java
 @SpringBootApplication
@@ -48,8 +54,7 @@ public class HiperbootExampleApplication {
     }
 }
 ```
-This configuration is vital as it sets up the necessary repository factory bean class for HiperBoot.
-
+### Step 3 - Extend from HiperBootRepository   
 Last thing to do is simply extend from the HiperBootRepository interface, mirroring the familiar Spring repository pattern. This extension not only equips your repository with all the standard JpaRepository methods, but also enriches it with HiperBoot's advanced features.
 
 ```java
@@ -61,14 +66,14 @@ import com.hiperbootexample.entity.Book;
 public interface BookRepository extends HiperBootRepository<Book, Long> {
 }
 ```
+---
+## Overview of Capabilities
 
+HiperBoot enhances the capability of Spring Data JPA by extending the JpaRepository interface. It adds additional query methods and mechanisms, making it easier to work with queries in a more streamlined and efficient manner.
 
-## Overview
+Enables efficient data filtering by converting JSON objects into a Map structure for query criteria. Each JSON key-value pair represents a field and its filter condition in your entity classes.
 
-HiperBoot enhances the capability of Spring Data JPA by extending the JpaRepository interface. It adds additional query methods and mechanisms, making it easier to work with complex queries in a more streamlined and efficient manner.
-
-Enables efficient data filtering by converting JSON objects into a Map structure for query criteria. Each JSON key-value pair represents a field and its filter condition in your entity classes. For instance, in the JSON:
-
+For instance, in the JSON:
 ```json
 {
   "author": {
@@ -143,23 +148,19 @@ BasePage have a list with the result of the query that you can access via getDat
   ```
 ### **Usage Examples**
 
-To test those examples and your own, run the example project from [here](https://github.com/sannonaragao/hiberboot-example/), access the Swagger HTML interface, cut and paste the examples from this documentation into the body of one endpoints present there .
+With the provided code snippets, along with the book and author entities, you're all set to explore the examples below. To get started, simply visit ***[this GitHub repository](https://github.com/sannonaragao/hiperboot-example/)***, clone and run the example project. Once it's up and running, you can access the Swagger HTML interface. From there, easily copy and paste the example requests from this documentation into the relevant endpoints to see HiperBoot in action.
 
 ### **Filter**
-
-**IMPORTANT**: HiperBoot works as CASE-INSENSITIVE.
+HiperBoot works as CASE-INSENSITIVE.
 
 #### Equals
-```json
+```json 
 {
   "id": 6
 }
 ```
-
 ```java
-  var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbEquals("id", "6") );
-
-  
+  var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbEquals("id", "6") ); 
 ```
 
 #### In
@@ -181,7 +182,6 @@ To test those examples and your own, run the example project from [here](https:/
 
 ```java
   var list = bookHiperBootRepository.hiperBootFilter(Book.class,  hbIsNull("price"));
-
 ```
 #### Greater Than
 ```json
@@ -257,8 +257,6 @@ Also, it is obvious but worth recalling, that it works just with STRINGS.
 
 ```java
   var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbNot(hbEquals("id", "1", "6", "3")));
-
-
 ```
 #### AND
 And it is the default filter operation.  When you put several conditions together they must all match.  
@@ -341,7 +339,11 @@ In the example below I will combine the pagination with other criterias we alrea
 ```
 ---
 
-To see a runnable implementation, visit the [example project repository](https://github.com/sannonaragao/hiberboot-example/).
+Did I remember to invite you to check out a cool, runnable example? I'm not entirely sure, so just in case I didn't: You're warmly invited to explore the [example project repository](https://github.com/sannonaragao/hiberboot-example/). It's waiting for you to dive in!
+
+Also, if you find the project intriguing or useful, don't forget to leave a ⭐ on [this repository](https://github.com/sannonaragao/hiperboot/). Your star would be a great encouragement for us to continue improving!
+
+---
 
 ## License
 
