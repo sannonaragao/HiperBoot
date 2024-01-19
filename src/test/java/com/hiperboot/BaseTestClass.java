@@ -67,6 +67,7 @@ public class BaseTestClass {
         }
         if (isNull(v)) {
             System.out.println(row);
+            System.out.println(field.getName());
         }
         return v;
     }
