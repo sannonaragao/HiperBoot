@@ -17,6 +17,8 @@ package com.hiperboot.db.entity;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -83,7 +85,9 @@ public class ParentTable {
     private Date colTime;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private Date colTimestamp;
+
+    private Instant colInstant;
+    private Timestamp colTimestamp;
     private LocalDate colLocalDate;
     private LocalDateTime colLocalDateTime;
     private BigDecimal colBigDecimal;
