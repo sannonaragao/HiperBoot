@@ -54,6 +54,9 @@ public class HiperbootExampleApplication {
     }
 }
 ```
+
+You can use HiperBoot without the custom repository factory and I will provide examples about how to do it soon.
+
 ### Step 3 - Extend from HiperBootRepository   
 Last thing to do is simply extend from the HiperBootRepository interface, mirroring the familiar Spring repository pattern. This extension not only equips your repository with all the standard JpaRepository methods, but also enriches it with HiperBoot's advanced features.
 
@@ -151,7 +154,6 @@ BasePage have a list with the result of the query that you can access via getDat
 With the provided code snippets, along with the book and author entities, you're all set to explore the examples below. To get started, simply visit ***[this GitHub repository](https://github.com/sannonaragao/hiperboot-example/)***, clone and run the example project. Once it's up and running, you can access the Swagger HTML interface. From there, easily copy and paste the example requests from this documentation into the relevant endpoints to see HiperBoot in action.
 
 ### **Filter**
-HiperBoot works as CASE-INSENSITIVE.
 
 #### Equals
 ```json 
@@ -337,9 +339,21 @@ In the example below I will combine the pagination with other criterias we alrea
 ```java
   var pageTest = bookHiperBootRepository.hiperBootPageFilter(Book.class, hbEquals("author.id", "3").sortedBy("title, published").offset(0).limit(5));
 ```
+
+
+### Miscellaneous
+HiperBoot works as CASE-INSENSITIVE.
+
+HiperBoot support the following datetime formats: ISO_DATETIME, ISO_DATETIME_TZ, SQL_DATETIME, ISO_DATETIME_UTC and RFC_1123
+```json
+{
+"published": ["1950-06-30T18:27:24", "1942-06-24T02:45:45+00:00", "1946-08-15 12:37:47.0","1954-05-20T19:54:05Z","Wed, 22 Dec 1954 16:55:37 GMT"]
+}
+```
+
 ---
 
-Did I remember to invite you to check out a cool, runnable example? I'm not entirely sure, so just in case I didn't: You're warmly invited to explore the [example project repository](https://github.com/sannonaragao/hiberboot-example/). It's waiting for you to dive in!
+Did I remember to invite you to check out a cool, runnable example? I'm not entirely sure, so just in case I didn't: You're warmly invited to explore the [example project repository](https://github.com/sannonaragao/hiperboot-example/). It's waiting for you to dive in!
 
 Also, if you find the project intriguing or useful, don't forget to leave a ⭐ on [this repository](https://github.com/sannonaragao/hiperboot/). Your star would be a great encouragement for us to continue improving!
 
