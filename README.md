@@ -348,6 +348,60 @@ In the example below I will combine the pagination with other criterias we alrea
   var pageTest = bookHiperBootRepository.hiperBootPageFilter(Book.class, hbEquals("author.id", "3").sortedBy("title, published").offset(0).limit(5));
 ```
 
+## **Advanced Features**
+
+### Query Capabilities
+The ExtraCriteriaStrategy interface provided by HiperBoot, allows you to dynamically modify or add extra criteria to a query at runtime. This strategy is particularly useful for applying additional filtering conditions based on various requirements, such as user roles, specific business rules, or other dynamic conditions.
+
+#### Example of how to implement ExtraCriteriaStrategy for a specific entity
+
+Suppose you have an entity Book and you want to add a criteria where only non-deleted books should be fetched. Here's how you can implement the ExtraCriteriaStrategy for Book:
+
+```java
+  import com.hiperbootexample.entity.Book;
+  import org.springframework.data.jpa.domain.Specification;
+  import javax.persistence.criteria.Predicate;
+
+  public class BookExtraCriteriaStrategy implements ExtraCriteriaStrategy<Book> {
+    @Override
+    public Specification<Book> getExtraCriteria(Specification<Book> existingSpec, Class<Book> type) {
+      return (root, query, criteriaBuilder) -> {
+        Predicate notDeletedPredicate = criteriaBuilder.isFalse(root.get("deleted"));
+        return existingSpec == null ? notDeletedPredicate : criteriaBuilder.and(existingSpec.toPredicate(root, query, criteriaBuilder), notDeletedPredicate);
+      };
+    }
+  }
+```
+This will be applied at ALL THE QUERY'S from the Book entity.
+
+### RetrievalStrategy Annotation Usage
+`@RetrievalStrategy` enables customized data fetching strategies in Java applications, optimizing performance beyond the defaults of ORM frameworks like HyperBoot.
+
+#### Strategies
+- **JOIN (`Strategy.JOIN`)**: Fetch related entities in a single query. Ideal for scenarios where related data is consistently used with the main entity.
+- **FETCH (`Strategy.FETCH`)**: Eagerly load related entities. Suitable when immediate access to related data is necessary.
+- **DEFAULT (`Strategy.DEFAULT`)**: Rely on the ORM's standard fetching strategy. Good for general use cases.
+
+#### Benefits
+- **Performance Optimization**: Tailor data fetching to specific needs, reducing database queries and data transfer.
+- **Flexibility**: Gain control over how data is retrieved, allowing for fine-tuning of application performance.
+- **Code Clarity**: Explicit fetching strategies improve code readability and maintainability.
+
+#### Use Cases
+- Use `JOIN` for efficient single-query data retrieval.
+- Opt for `FETCH` when related data is always required immediately.
+- Default to `DEFAULT` for typical scenarios without specialized fetching needs.
+
+#### Implementation
+```java																	
+public class ExampleEntity {																	
+    @RetrievalStrategy(Strategy.JOIN)																	
+    private RelatedEntity relatedEntity;																	
+}																	
+```
+Example use of `@RetrievalStrategy` to specify JOIN fetching strategy on `relatedEntity`.																	
+
+---
 
 ### Miscellaneous
 HiperBoot works as CASE-INSENSITIVE.
@@ -358,7 +412,6 @@ HiperBoot support the following datetime formats: ISO_DATETIME, ISO_DATETIME_TZ,
 "published": ["1950-06-30T18:27:24", "1942-06-24T02:45:45+00:00", "1946-08-15 12:37:47.0","1954-05-20T19:54:05Z","Wed, 22 Dec 1954 16:55:37 GMT"]
 }
 ```
-
 ---
 
 Did I remember to invite you to check out a cool, runnable example? I'm not entirely sure, so just in case I didn't: You're warmly invited to explore the [example project repository](https://github.com/sannonaragao/hiperboot-example/). It's waiting for you to dive in!
