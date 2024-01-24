@@ -15,7 +15,7 @@
  */
 package com.hiperboot;
 
-import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -62,12 +62,8 @@ public class BaseTestClass {
         catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-        if (String.class.isAssignableFrom(field.getType())) {
+        if (String.class.isAssignableFrom(field.getType()) && nonNull(v)) {
             v = v.toString();
-        }
-        if (isNull(v)) {
-            System.out.println(row);
-            System.out.println(field.getName());
         }
         return v;
     }

@@ -18,9 +18,7 @@ package com.hiperboot.db.repository;
 import static com.hiperboot.db.filter.DbFilterBuilder.getDbFilters;
 import static com.hiperboot.pagination.PageRequestBuilder.getPageRequest;
 import static com.hiperboot.pagination.PageRequestBuilder.getPagination;
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.springframework.data.jpa.domain.Specification.where;
 
 import java.util.List;
 import java.util.Map;
@@ -43,10 +41,13 @@ import jakarta.persistence.EntityManager;
 public class HiperBootRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> implements HiperBootRepository<T, ID> {
 
     private final HiperBootFilterGenerator<T> filterGenerator;
+    private final ExtraCriteriaStrategy<T> extraCriteriaStrategyImplementation;
 
-    public HiperBootRepositoryImpl(JpaEntityInformation<T, ?> entityInformation, EntityManager em) {
-        super(entityInformation, em);
+    public HiperBootRepositoryImpl(JpaEntityInformation<?, ?> entityInformation, EntityManager em,
+            ExtraCriteriaStrategy<T> extraCriteriaStrategyImplementation) {
+        super((JpaEntityInformation<T, ?>) entityInformation, em);
         this.filterGenerator = new HiperBootFilterGenerator<>();
+        this.extraCriteriaStrategyImplementation = extraCriteriaStrategyImplementation;
     }
 
     @Override
@@ -78,11 +79,10 @@ public class HiperBootRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> i
         return nonNull(specifications) ? findAll(specifications, pageable) : findAll(pageable);
     }
 
-    private Specification<T> getSpecification(Class<T> entity, List<DbFilter> filters) {
+    public Specification<T> getSpecification(Class<T> entity, List<DbFilter> filters) {
         Specification<T> specifications = filterGenerator.getSpecificationFromFilters(filters);
-        Specification<T> extraCriteria = getExtraCriteria(specifications, entity);
-        if (nonNull(extraCriteria)) {
-            specifications = isNull(specifications) ? where(extraCriteria) : specifications.and(extraCriteria);
+        if (nonNull(extraCriteriaStrategyImplementation)) {
+            return extraCriteriaStrategyImplementation.process(specifications, entity);
         }
         return specifications;
     }

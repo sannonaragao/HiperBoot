@@ -155,7 +155,8 @@ With the provided code snippets, along with the book and author entities, you're
 
 ### **Filter**
 
-#### Equals
+#### Equals / In
+This method is used to filter records where a specified column equals a given value. It's useful for straightforward equality checks.
 ```json 
 {
   "id": 6
@@ -165,7 +166,7 @@ With the provided code snippets, along with the book and author entities, you're
   var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbEquals("id", "6") ); 
 ```
 
-#### In
+When multiple values are provided, it fetches records where the column matches any of the values working as the "in" operator of the SQL.
 ```json
 {
   "id": ["1", "6", "3"]
@@ -176,16 +177,18 @@ With the provided code snippets, along with the book and author entities, you're
   var list = bookHiperBootRepository.hiperBootFilter(Book.class,  hbEquals("id", "1", "6", "3"));
 ```
 #### IsNull
+Fetches records where the specified column value is null. This is useful for finding records with null value in a particular column.
 ```json
 {
   "price": null
 }
 ```
-
 ```java
   var list = bookHiperBootRepository.hiperBootFilter(Book.class,  hbIsNull("price"));
 ```
 #### Greater Than
+Used to retrieve records where the value of a specified column is greater or equals than a given value.
+
 ```json
 {
   "price": {
@@ -199,6 +202,7 @@ With the provided code snippets, along with the book and author entities, you're
 ```
 
 #### Smaller Than
+Opposite of greaterThan, it fetches records where the column value is less or equals than the specified value.
 ```json
 {
   "price": {
@@ -212,6 +216,8 @@ With the provided code snippets, along with the book and author entities, you're
 ```
 
 #### Between
+This method is used for range queries. It fetches records where the column value falls between two specified values.
+
 ```json
 {
   "price": {
@@ -247,7 +253,7 @@ Also, it is obvious but worth recalling, that it works just with STRINGS.
 ```
 
 #### Not
- To use NOT you can combine with other criteria, like the example below:
+This is used to negate a filter condition. If you want to fetch records that do not meet a certain criterion, you wrap that condition in hbNot.  To use NOT you can combine with other criteria, like the example below:
 
 ```json
 {
@@ -261,6 +267,8 @@ Also, it is obvious but worth recalling, that it works just with STRINGS.
   var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbNot(hbEquals("id", "1", "6", "3")));
 ```
 #### AND
+Combines multiple filter conditions. All conditions must be met for a record to be included in the result. It's like using 'AND' in SQL where multiple criteria are specified.
+
 And it is the default filter operation.  When you put several conditions together they must all match.  
 
 ```json
@@ -340,6 +348,60 @@ In the example below I will combine the pagination with other criterias we alrea
   var pageTest = bookHiperBootRepository.hiperBootPageFilter(Book.class, hbEquals("author.id", "3").sortedBy("title, published").offset(0).limit(5));
 ```
 
+## **Advanced Features**
+
+### Query Capabilities
+The ExtraCriteriaStrategy interface provided by HiperBoot, allows you to dynamically modify or add extra criteria to a query at runtime. This strategy is particularly useful for applying additional filtering conditions based on various requirements, such as user roles, specific business rules, or other dynamic conditions.
+
+#### Example of how to implement ExtraCriteriaStrategy for a specific entity
+
+Suppose you have an entity Book and you want to add a criteria where only non-deleted books should be fetched. Here's how you can implement the ExtraCriteriaStrategy for Book:
+
+```java
+  import com.hiperbootexample.entity.Book;
+  import org.springframework.data.jpa.domain.Specification;
+  import javax.persistence.criteria.Predicate;
+
+  public class BookExtraCriteriaStrategy implements ExtraCriteriaStrategy<Book> {
+    @Override
+    public Specification<Book> getExtraCriteria(Specification<Book> existingSpec, Class<Book> type) {
+      return (root, query, criteriaBuilder) -> {
+        Predicate notDeletedPredicate = criteriaBuilder.isFalse(root.get("deleted"));
+        return existingSpec == null ? notDeletedPredicate : criteriaBuilder.and(existingSpec.toPredicate(root, query, criteriaBuilder), notDeletedPredicate);
+      };
+    }
+  }
+```
+This will be applied at ALL THE QUERY'S from the Book entity.
+
+### RetrievalStrategy Annotation Usage
+`@RetrievalStrategy` enables customized data fetching strategies in Java applications, optimizing performance beyond the defaults of ORM frameworks like HyperBoot.
+
+#### Strategies
+- **JOIN (`Strategy.JOIN`)**: Fetch related entities in a single query. Ideal for scenarios where related data is consistently used with the main entity.
+- **FETCH (`Strategy.FETCH`)**: Eagerly load related entities. Suitable when immediate access to related data is necessary.
+- **DEFAULT (`Strategy.DEFAULT`)**: Rely on the ORM's standard fetching strategy. Good for general use cases.
+
+#### Benefits
+- **Performance Optimization**: Tailor data fetching to specific needs, reducing database queries and data transfer.
+- **Flexibility**: Gain control over how data is retrieved, allowing for fine-tuning of application performance.
+- **Code Clarity**: Explicit fetching strategies improve code readability and maintainability.
+
+#### Use Cases
+- Use `JOIN` for efficient single-query data retrieval.
+- Opt for `FETCH` when related data is always required immediately.
+- Default to `DEFAULT` for typical scenarios without specialized fetching needs.
+
+#### Implementation
+```java																	
+public class ExampleEntity {																	
+    @RetrievalStrategy(Strategy.JOIN)																	
+    private RelatedEntity relatedEntity;																	
+}																	
+```
+Example use of `@RetrievalStrategy` to specify JOIN fetching strategy on `relatedEntity`.																	
+
+---
 
 ### Miscellaneous
 HiperBoot works as CASE-INSENSITIVE.
@@ -350,7 +412,6 @@ HiperBoot support the following datetime formats: ISO_DATETIME, ISO_DATETIME_TZ,
 "published": ["1950-06-30T18:27:24", "1942-06-24T02:45:45+00:00", "1946-08-15 12:37:47.0","1954-05-20T19:54:05Z","Wed, 22 Dec 1954 16:55:37 GMT"]
 }
 ```
-
 ---
 
 Did I remember to invite you to check out a cool, runnable example? I'm not entirely sure, so just in case I didn't: You're warmly invited to explore the [example project repository](https://github.com/sannonaragao/hiperboot-example/). It's waiting for you to dive in!

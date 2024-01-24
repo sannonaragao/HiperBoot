@@ -32,13 +32,9 @@ public interface HiperBootRepository<T, ID> extends JpaRepository<T, ID> {
     List<T> hiperBootFilter(Class<T> entity, Map<String, Object> filters);
     Page<T> hiperBootPageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable);
     Page<T> hiperBootPageFilter(Class<T> entity, Map<String, Object> filters);
-
     BasePage hiperBootBasePageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable);
     BasePage hiperBootBasePageFilter(Class<T> entity, Map<String, Object> filters);
-
-
     default Specification<T> getExtraCriteria(Specification<T> specifications, Class<T> type) {
         return null;
     }
-
 }

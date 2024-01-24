@@ -27,7 +27,7 @@ import com.hiperboot.BaseTestClass;
 import com.hiperboot.db.domain.BasePage;
 import com.hiperboot.db.domain.Pagination;
 import com.hiperboot.db.entity.book.Book;
-import com.hiperboot.db.repository.BookHiperBootRepository;
+import com.hiperboot.db.repository.book.BookHiperBootRepository;
 
 class BasePageTest extends BaseTestClass {
 

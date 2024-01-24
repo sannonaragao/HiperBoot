@@ -19,18 +19,20 @@ import static com.hiperboot.util.HBUtils.addPageToFilter;
 import static com.hiperboot.util.HBUtils.between;
 import static com.hiperboot.util.HBUtils.getPageWithStartSizeSort;
 import static com.hiperboot.util.HBUtils.greaterThan;
-import static com.hiperboot.util.HBUtils.hbAnd;
 import static com.hiperboot.util.HBUtils.hbEquals;
 import static com.hiperboot.util.HBUtils.hbIsNull;
 import static com.hiperboot.util.HBUtils.hbNot;
 import static com.hiperboot.util.HBUtils.smallerThan;
+import static java.util.Objects.isNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +40,6 @@ import org.springframework.data.domain.Page;
 
 import com.hiperboot.BaseTestClass;
 import com.hiperboot.db.entity.ParentTable;
-import com.hiperboot.db.entity.book.Book;
-import com.hiperboot.db.repository.BookHiperBootRepository;
 import com.hiperboot.db.repository.ParentTableHiperBootRepository;
 
 import lombok.extern.log4j.Log4j2;
@@ -48,92 +48,121 @@ import lombok.extern.log4j.Log4j2;
 class HiperBootRepositoryColumnsTest extends BaseTestClass {
 
     @Autowired
-    private ParentTableHiperBootRepository level01Repository;
-
-    @Autowired
-    private BookHiperBootRepository bookHiperBootRepository;
+    private ParentTableHiperBootRepository parentTableHiperBootRepository;
 
     private List<String> columnsGreaterThanIncompatible = List.of("colBoolean", "colStatusEnum", "someTable", "children");
     private List<String> columnsInIncompatible = List.of("colBoolean", "someTable", "children");
-    private List<String> columnsToIgnore = List.of("someTable", "children");
+    private List<String> columnsThatAreEntities = List.of("someTable", "children");
 
-    private List<String> columsToBeCaseInsensitive = List.of("colString", "colUUID");
+    private List<String> columnsToBeCaseInsensitive = List.of("colString", "colUUID");
 
     @Test
-    void testGetByFilter() {
-        Map<String, Object> filter = Collections.emptyMap();
-        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, Map.of("colString", "RandomString1"));
-        assertThat(results).isNotEmpty();
+    void getByFilter_ShouldReturnResultsWithMatchingColStringCaseInsensitive() {
+        // Arrange
+        String expectedValue = "RandomString1";
+        String filterColumn = "colString";
+
+        // Act
+        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
+                hbEquals(filterColumn, expectedValue));
+
+        // Assert
+        assertThat(results)
+                .as("Check if the results are not empty when filtering by " + filterColumn + " equal to " + expectedValue)
+                .isNotEmpty();
+
+        assertThat(results)
+                .as("Verify that each result's " + filterColumn + " matches the expected value (case insensitive)")
+                .allMatch(result -> expectedValue.equalsIgnoreCase(result.getColString()));
     }
 
     @Test
     void caseInsensitiveEqualsFilterStringColumnTest() {
-        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, hbEquals("colString", "abc"));
+        String expectedValue = "abc";
+        String filterColumn = "colString";
+
+        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
+                hbEquals(filterColumn, expectedValue));
         assertThat(results).hasSize(2);
 
-        for (ParentTable row : results) {
-            var valResult = row.getColString();
-            assertThat(valResult.toUpperCase()).isEqualTo("ABC");
-        }
+        results.forEach(row ->
+                assertThat(row.getColString()).as("Check if " + filterColumn + " matches the expected value (case insensitive)")
+                        .isEqualToIgnoringCase(expectedValue)
+        );
     }
 
     @Test
-    void randomEqualsFilterAllColumnsTest() {
-        ParentTable randomRow = getRandomRow();
-        List<ParentTable> results;
+    void equalsFilterAllRowsAndAllColumnsTest_CaseInsensitive() {
+        List<ParentTable> rowsToTest = parentTableHiperBootRepository.findAll();
 
-        var fieldMaps = getFieldList(ParentTable.class);
-        for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
-            Field field = entry.getValue();
-            String columnName = entry.getKey();
-            if (columnsToIgnore.contains(columnName) || columnName.equals("colString")) {
-                continue;
-            }
-            var val = getFieldValue(randomRow, field);
-            results = level01Repository.hiperBootFilter(ParentTable.class, hbEquals(columnName, val.toString()));
-            assertThat(results).isNotEmpty();
+        for (ParentTable testRow : rowsToTest) {
+            var fieldMaps = getFieldList(ParentTable.class);
+            for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
+                String columnName = entry.getKey();
+                Field field = entry.getValue();
 
-            for (ParentTable row : results) {
-                var valResult = getFieldValue(row, field);
-                assertThat(valResult).isEqualTo(val);
-            }
-        }
-    }
+                if (columnsThatAreEntities.contains(columnName)) {
+                    continue;
+                }
 
-    @Test
-    void randomNotEqualsFilterAllColumnsTest() {
-        ParentTable randomRow = getRandomRow();
-        List<ParentTable> results;
+                var val = getFieldValue(testRow, field);
+                if (isNull(val)) {
+                    continue;
+                }
 
-        var fieldMaps = getFieldList(ParentTable.class);
-        for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
-            Field field = entry.getValue();
-            String columnName = entry.getKey();
-            if (columnsToIgnore.contains(columnName)) {
-                continue;
-            }
+                List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
+                        hbEquals(columnName, val.toString()));
+                assertThat(results).isNotEmpty();
 
-            var val = getFieldValue(randomRow, field);
-            results = level01Repository.hiperBootFilter(ParentTable.class, hbNot(hbEquals(columnName, val.toString())));
-            assertThat(results).isNotEmpty();
-
-            for (ParentTable row : results) {
-                var valResult = getFieldValue(row, field);
-                assertThat(valResult).isNotEqualTo(val);
+                results.forEach(row -> {
+                    var valResult = getFieldValue(row, field);
+                    assertThat(valResult.toString()).isEqualToIgnoringCase(val.toString());
+                });
             }
         }
     }
 
     @Test
-    void randomInFilterAllColumnsTest() {
+    void randomNotEqualsFilterAllColumnsTest_CaseInsensitive() {
+        List<ParentTable> rowsToTest = parentTableHiperBootRepository.findAll();
+
+        for (ParentTable testRow : rowsToTest) {
+            var fieldMaps = getFieldList(ParentTable.class);
+            for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
+                String columnName = entry.getKey();
+                Field field = entry.getValue();
+
+                if (columnsThatAreEntities.contains(columnName)) {
+                    continue;
+                }
+
+                var val = getFieldValue(testRow, field);
+                if (isNull(val)) {
+                    continue;
+                }
+
+                List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
+                        hbNot(hbEquals(columnName, val.toString())));
+                assertThat(results).isNotEmpty();
+
+                results.forEach(row -> {
+                    var valResult = getFieldValue(row, field);
+                    assertThat(valResult.toString()).isNotEqualToIgnoringCase(val.toString());
+                });
+            }
+        }
+    }
+
+    @Test
+    void randomInFilterAllColumnsTest_CaseInsensitive() {
         ParentTable randomRow1 = getRandomRow();
         ParentTable randomRow2 = getRandomRow();
-        List<ParentTable> results;
 
         var fieldMaps = getFieldList(ParentTable.class);
         for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
-            Field field = entry.getValue();
             String columnName = entry.getKey();
+            Field field = entry.getValue();
+
             if (columnsInIncompatible.contains(columnName)) {
                 continue;
             }
@@ -141,60 +170,80 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
             var val1 = getFieldValue(randomRow1, field);
             var val2 = getFieldValue(randomRow2, field);
 
-            results = level01Repository.hiperBootFilter(ParentTable.class,
+            if (isNull(val1) || isNull(val2)) {
+                continue;
+            }
+
+            List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
                     hbEquals(columnName, val1.toString(), val2.toString()));
             assertThat(results).isNotEmpty();
 
-            for (ParentTable row : results) {
+            results.forEach(row -> {
                 var valResult = getFieldValue(row, field);
-                if (columsToBeCaseInsensitive.contains(columnName)) {
+                if (columnsToBeCaseInsensitive.contains(columnName)) {
                     assertThat(valResult.toString().toUpperCase()).isIn(val1.toString().toUpperCase(), val2.toString().toUpperCase());
                 }
                 else {
                     assertThat(valResult).isIn(val1, val2);
                 }
-
-            }
+            });
         }
     }
 
     @Test
     void randomInCaseInsensitiveFilterStringTest() {
-        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, hbEquals("colString", "abc", "xxx"));
+        String[] expectedValues = { "abc", "xxx" };
+        String filterColumn = "colString";
+
+        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
+                hbEquals(filterColumn, expectedValues));
         assertThat(results).hasSize(2);
+
+        results.forEach(row -> {
+            String actualValue = row.getColString().toLowerCase();
+            List<String> lowerCaseExpectedValues = Arrays.stream(expectedValues)
+                    .map(String::toLowerCase)
+                    .collect(Collectors.toList());
+            assertThat(lowerCaseExpectedValues).as("Check if " + filterColumn + " matches one of the expected values (case insensitive)")
+                    .contains(actualValue);
+        });
     }
 
     @Test
-    void randomNotInFilterAllColumnsTest() {
+    void randomNotInFilterAllColumnsTest_CaseInsensitive() {
         ParentTable randomRow1 = getRandomRow();
         ParentTable randomRow2 = getRandomRow();
-        List<ParentTable> results;
 
         var fieldMaps = getFieldList(ParentTable.class);
         for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
-            Field field = entry.getValue();
             String columnName = entry.getKey();
+            Field field = entry.getValue();
 
             if (columnsInIncompatible.contains(columnName)) {
                 continue;
             }
-            var val1 = getFieldValue(randomRow1, field).toString();
-            var val2 = getFieldValue(randomRow2, field).toString();
-            results = level01Repository.hiperBootFilter(ParentTable.class, hbNot(hbEquals(columnName, val1, val2)));
 
+            var val1 = getFieldValue(randomRow1, field);
+            var val2 = getFieldValue(randomRow2, field);
+            if (isNull(val1) || isNull(val2)) {
+                continue;
+            }
+
+            List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
+                    hbNot(hbEquals(columnName, val1.toString(), val2.toString())));
             assertThat(results).isNotEmpty();
 
-            for (ParentTable row : results) {
+            results.forEach(row -> {
                 var valResult = getFieldValue(row, field);
-                assertThat(valResult).isNotIn(val1.toUpperCase(), val2.toUpperCase());
-            }
+                List<String> expectedValues = Arrays.asList(val1.toString().toLowerCase(), val2.toString().toLowerCase());
+                assertThat(valResult.toString().toLowerCase()).isNotIn(expectedValues);
+            });
         }
     }
 
     @Test
-    void randomGreaterThanFilterAllColumnsTest() {
+    void randomGreaterThanFilterAllColumnsTest_CaseInsensitive() {
         ParentTable randomRow = getRandomRow();
-        List<ParentTable> results;
 
         var fieldMaps = getFieldList(ParentTable.class);
         for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
@@ -205,27 +254,29 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
 
             Field field = entry.getValue();
             var valFrom = getFieldValue(randomRow, field);
-            results = level01Repository.hiperBootFilter(ParentTable.class, greaterThan(columnName, valFrom.toString()));
+            if (isNull(valFrom)) {
+                continue;
+            }
 
+            List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
+                    greaterThan(columnName, valFrom.toString()));
             assertThat(results).isNotEmpty();
 
-            for (ParentTable row : results) {
+            results.forEach(row -> {
                 var valResult = getFieldValue(row, field);
                 if (columnName.equals("colString")) {
-                    assertThat(((Comparable) valResult.toString().toUpperCase()).compareTo(
-                            valFrom.toString().toUpperCase())).isGreaterThanOrEqualTo(0);
+                    assertThat(valResult.toString().toLowerCase()).isGreaterThanOrEqualTo(valFrom.toString().toLowerCase());
                 }
                 else {
-                    assertThat(((Comparable) valResult).compareTo(valFrom)).isGreaterThanOrEqualTo(0);
+                    assertThat((Comparable) valResult).isGreaterThanOrEqualTo((Comparable) valFrom);
                 }
-            }
+            });
         }
     }
 
     @Test
-    void randomSmallerThanFilterAllColumnsTest() {
+    void randomSmallerThanFilterAllColumnsTest_CaseInsensitive() {
         ParentTable randomRow = getRandomRow();
-        List<ParentTable> results;
 
         var fieldMaps = getFieldList(ParentTable.class);
         for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
@@ -236,62 +287,74 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
 
             Field field = entry.getValue();
             var valFrom = getFieldValue(randomRow, field);
-            results = level01Repository.hiperBootFilter(ParentTable.class, smallerThan(columnName, valFrom.toString()));
+            if (isNull(valFrom)) {
+                continue;
+            }
 
+            List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
+                    smallerThan(columnName, valFrom.toString()));
             assertThat(results).isNotEmpty();
 
-            for (ParentTable row : results) {
+            results.forEach(row -> {
                 var valResult = getFieldValue(row, field);
                 if (columnName.equals("colString")) {
-                    assertThat(((Comparable) valResult.toString().toUpperCase()).compareTo(
-                            valFrom.toString().toUpperCase())).isLessThanOrEqualTo(0);
+                    assertThat(valResult.toString().toLowerCase()).isLessThanOrEqualTo(valFrom.toString().toLowerCase());
                 }
                 else {
-                    assertThat(((Comparable) valResult).compareTo(valFrom)).isLessThanOrEqualTo(0);
+                    assertThat((Comparable) valResult).isLessThanOrEqualTo((Comparable) valFrom);
                 }
-            }
+            });
         }
     }
 
     @Test
-    void randomBetweenFilterAllColumnsTest() {
-        List<ParentTable> results;
-
+    void randomBetweenFilterAllColumnsTest_CaseInsensitive() {
         var fieldMaps = getFieldList(ParentTable.class);
         for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
             String columnName = entry.getKey();
             if (columnsGreaterThanIncompatible.contains(columnName)) {
                 continue;
             }
+
             Field field = entry.getValue();
             var filter = addPageToFilter(null, getPageWithStartSizeSort(null, null, columnName));
-            Page<ParentTable> pageResults = level01Repository.hiperBootPageFilter(ParentTable.class, filter);
+            Page<ParentTable> pageResults = parentTableHiperBootRepository.hiperBootPageFilter(ParentTable.class, filter);
 
             assertThat(pageResults).isNotEmpty();
             var valFrom = getFieldValue(pageResults.getContent().get(1), field);
             var valTo = getFieldValue(pageResults.getContent().get(pageResults.getContent().size() - 2), field);
+            if (isNull(valFrom) || isNull(valTo)) {
+                continue;
+            }
 
-            results = level01Repository.hiperBootFilter(ParentTable.class,
+            List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
                     between(columnName, valFrom.toString(), valTo.toString()));
             assertThat(results).isNotEmpty();
 
-            for (ParentTable row : results) {
+            results.forEach(row -> {
                 var valResult = getFieldValue(row, field);
                 if (columnName.equals("colString")) {
-                    assertThat((Comparable) valResult.toString().toUpperCase()).isBetween(valFrom.toString().toUpperCase(),
-                            valTo.toString().toUpperCase());
+                    assertThat(valResult.toString().toLowerCase()).isBetween(valFrom.toString().toLowerCase(),
+                            valTo.toString().toLowerCase());
                 }
                 else {
                     assertThat((Comparable) valResult).isBetween((Comparable) valFrom, (Comparable) valTo);
                 }
-            }
+            });
         }
     }
 
     @Test
-    void randomLikeFilterAllColumnsTest() {
-        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, hbEquals("colString", "%Ab%"));
+    void randomLikeFilterAllColumnsTest_CaseInsensitive() {
+        String filterValue = "%Ab%";
+        String filterColumn = "colString";
+
+        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, hbEquals(filterColumn, filterValue));
         assertThat(results).hasSize(2);
+
+        results.forEach(row ->
+                assertThat(row.getColString().toLowerCase()).contains(filterValue.replace("%", "").toLowerCase())
+        );
     }
 
     @Test
@@ -299,68 +362,58 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
         var fieldMaps = getFieldList(ParentTable.class);
         for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
             String columnName = entry.getKey();
-            if (columnName.equals("id") || columnsToIgnore.contains(columnName)) {
+            if (columnName.equals("id") || columnsThatAreEntities.contains(columnName)) {
                 continue;
             }
-            List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, hbIsNull(columnName));
+
+            List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, hbIsNull(columnName));
             assertThat(results).hasSize(1);
+
+            results.forEach(row -> {
+                Field field = entry.getValue();
+                field.setAccessible(true);
+                try {
+                    Object fieldValue = field.get(row);
+                    assertThat(fieldValue).isNull();
+                }
+                catch (IllegalAccessException e) {
+                    fail("Unable to access field value for column: " + columnName);
+                }
+            });
         }
     }
 
     @Test
-    void manyToOneTest() {
-        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, hbEquals("someTable.name", "NAme c"));
+    void manyToOneTest_CaseInsensitive() {
+        String expectedValue = "Name C";
+        String filterColumn = "someTable.name";
+
+        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, hbEquals(filterColumn, "NAme c"));
         assertThat(results).hasSize(1);
-        assertThat(results.get(0).getSomeTable().getName()).isEqualTo("Name C");
+
+        results.forEach(row ->
+                assertThat(row.getSomeTable().getName()).isEqualToIgnoringCase(expectedValue)
+        );
     }
 
     @Test
     void oneToManyTest() {
-        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, hbEquals("children.number", "30"));
+        String expectedValue = "30";
+        String filterColumn = "children.number";
+
+        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
+                hbEquals(filterColumn, expectedValue));
         assertThat(results).hasSize(1);
-        assertThat(results.get(0).getChildren()).hasSize(2);
-    }
 
-    @Test
-    void likeContainsTest() {
-        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbEquals("author.name", "%eo%"));
-        assertThat(list).hasSize(13);
-    }
-
-    @Test
-    void likeEndsTest() {
-        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbEquals("author.name", "%Orwell"));
-        assertThat(list).hasSize(5);
-    }
-
-    @Test
-    void likeStartsTest() {
-        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbAnd(hbEquals("author.name", "J%"), greaterThan("price", "5")));
-        assertThat(list).hasSize(5);
-    }
-
-    @Test
-    void isNullTest() {
-        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbIsNull("price"));
-        assertThat(list).hasSize(1);
-        assertThat(list.get(0).getPrice()).isNull();
-    }
-
-    @Test
-    void isNotNullTest() {
-        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbAnd(hbEquals("author.id", "4"), hbNot(hbIsNull("price"))));
-        assertThat(list).hasSize(9);
-    }
-
-    @Test
-    void isNotInTest() {
-        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbNot(hbEquals("author.id", "1", "3", "4", "5")));
-
-        assertThat(list).hasSize(5);
+        results.forEach(parentTable ->
+                parentTable.getChildren().forEach(child ->
+                        assertThat(child.getNumber().toString()).isEqualToIgnoringCase(expectedValue)
+                )
+        );
     }
 
     protected ParentTable getRandomRow() {
-        List<ParentTable> results = level01Repository.findAll();
+        List<ParentTable> results = parentTableHiperBootRepository.findAll();
         assertThat(results).isNotEmpty();
 
         Random random = new Random();

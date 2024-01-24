@@ -15,10 +15,8 @@
  */
 package com.hiperboot.db.repository;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.domain.Specification;
 
-import com.hiperboot.db.entity.book.Book;
-
-@Repository
-public interface BookHiperBootRepository extends HiperBootRepository<Book, Long> {
+public interface ExtraCriteriaStrategy<T> {
+    Specification<T> process(Specification<T> specifications, Class<T> type);
 }
