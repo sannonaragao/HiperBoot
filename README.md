@@ -155,7 +155,8 @@ With the provided code snippets, along with the book and author entities, you're
 
 ### **Filter**
 
-#### Equals
+#### Equals / In
+This method is used to filter records where a specified column equals a given value. It's useful for straightforward equality checks.
 ```json 
 {
   "id": 6
@@ -165,7 +166,7 @@ With the provided code snippets, along with the book and author entities, you're
   var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbEquals("id", "6") ); 
 ```
 
-#### In
+When multiple values are provided, it fetches records where the column matches any of the values working as the "in" operator of the SQL.
 ```json
 {
   "id": ["1", "6", "3"]
@@ -176,16 +177,18 @@ With the provided code snippets, along with the book and author entities, you're
   var list = bookHiperBootRepository.hiperBootFilter(Book.class,  hbEquals("id", "1", "6", "3"));
 ```
 #### IsNull
+Fetches records where the specified column value is null. This is useful for finding records with null value in a particular column.
 ```json
 {
   "price": null
 }
 ```
-
 ```java
   var list = bookHiperBootRepository.hiperBootFilter(Book.class,  hbIsNull("price"));
 ```
 #### Greater Than
+Used to retrieve records where the value of a specified column is greater or equals than a given value.
+
 ```json
 {
   "price": {
@@ -199,6 +202,7 @@ With the provided code snippets, along with the book and author entities, you're
 ```
 
 #### Smaller Than
+Opposite of greaterThan, it fetches records where the column value is less or equals than the specified value.
 ```json
 {
   "price": {
@@ -212,6 +216,8 @@ With the provided code snippets, along with the book and author entities, you're
 ```
 
 #### Between
+This method is used for range queries. It fetches records where the column value falls between two specified values.
+
 ```json
 {
   "price": {
@@ -247,7 +253,7 @@ Also, it is obvious but worth recalling, that it works just with STRINGS.
 ```
 
 #### Not
- To use NOT you can combine with other criteria, like the example below:
+This is used to negate a filter condition. If you want to fetch records that do not meet a certain criterion, you wrap that condition in hbNot.  To use NOT you can combine with other criteria, like the example below:
 
 ```json
 {
@@ -261,6 +267,8 @@ Also, it is obvious but worth recalling, that it works just with STRINGS.
   var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbNot(hbEquals("id", "1", "6", "3")));
 ```
 #### AND
+Combines multiple filter conditions. All conditions must be met for a record to be included in the result. It's like using 'AND' in SQL where multiple criteria are specified.
+
 And it is the default filter operation.  When you put several conditions together they must all match.  
 
 ```json
