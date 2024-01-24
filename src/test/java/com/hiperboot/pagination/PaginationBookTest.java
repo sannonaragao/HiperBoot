@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.hiperboot.BaseTestClass;
 import com.hiperboot.db.entity.book.Book;
-import com.hiperboot.db.repository.BookHiperBootRepository;
+import com.hiperboot.db.repository.book.BookHiperBootRepository;
 
 class PaginationBookTest extends BaseTestClass {
 

@@ -19,7 +19,6 @@ import static com.hiperboot.util.HBUtils.hbEquals;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.hiperboot.BaseTestClass;
 import com.hiperboot.db.entity.MainTable;
 import com.hiperboot.db.entity.ParentTable;
-import com.hiperboot.db.entity.book.Author;
-import com.hiperboot.db.repository.AuthorHiperBootRepository;
 import com.hiperboot.db.repository.MainTableHiperBootRepository;
 import com.hiperboot.db.repository.ParentTableHiperBootRepository;
 
@@ -40,27 +37,40 @@ class HiperBootManyToOneTest extends BaseTestClass {
     @Autowired
     private MainTableHiperBootRepository mainTableHiperBootRepository;
 
-    @Autowired
-    private AuthorHiperBootRepository authorHiperBootRepository;
-
     @Test
-    void testGetByFilter() {
-        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, Map.of("someTable", Map.of("id", "1")));
-        assertThat(results).isNotEmpty();
+    void getByFilter_ShouldReturnNonEmptyResultsForSpecificSomeTableId() {
+        // Arrange
+        String someTableId = "1";
+        String filterCriteria = "someTable.id";
+
+        // Act
+        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, hbEquals(filterCriteria, someTableId));
+
+        // Assert
+        assertThat(results)
+                .as("Check if the results are not empty when filtering by someTable.id equal to " + someTableId)
+                .isNotEmpty();
+
+        assertThat(results)
+                .as("Verify that each result has someTable.id equal to " + someTableId)
+                .allMatch(result -> result.getSomeTable().getId().toString().equals(someTableId));
     }
+
 
     @Test
     void manyToOneWithStringPKTest() {
-        List<MainTable> results = mainTableHiperBootRepository.hiperBootFilter(MainTable.class,
-                hbEquals("childTable.granChild.something", "Nothing3"));
-        assertThat(results).isNotEmpty();
-        assertThat(results.get(0).getChildTable().getGranChild().get(0).getSomething()).isEqualTo("Nothing3");
-    }
+        // Arrange
+        String expectedValue = "Nothing3";
+        String filterCriteria = "childTable.granChild.something";
 
-    @Test
-    void manyToOneWithSetTest() {
-        List<Author> results = authorHiperBootRepository.hiperBootFilter(Author.class, hbEquals("books.price", "1.2"));
-        assertThat(results).isNotEmpty();
-        assertThat(results.get(0).getBooks().stream().toList().get(0).getTitle()).isEqualTo("Harry Potter and the Sorcerer's Stone");
+        // Act
+        List<MainTable> results = mainTableHiperBootRepository.hiperBootFilter(MainTable.class, hbEquals(filterCriteria, expectedValue));
+
+        // Assert
+        assertThat(results).as("Check if results are not empty")
+                .isNotEmpty();
+        assertThat(results.get(0).getChildTable().getGranChild().get(0).getSomething())
+                .as("Check if the first result matches the expected value")
+                .isEqualTo(expectedValue);
     }
 }

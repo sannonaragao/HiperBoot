@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository;
+package com.hiperboot.db.repository.author;
 
 import org.springframework.stereotype.Repository;
 
 import com.hiperboot.db.entity.book.Author;
+import com.hiperboot.db.repository.HiperBootRepository;
 
 @Repository
 public interface AuthorHiperBootRepository extends HiperBootRepository<Author, Long> {
