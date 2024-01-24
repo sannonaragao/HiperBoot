@@ -51,4 +51,7 @@ public class Book {
     private Author author;
     private BigDecimal price;
     private LocalDateTime published;
+
+    @Column(nullable = false)
+    private Boolean deleted;
 }
