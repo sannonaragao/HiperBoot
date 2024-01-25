@@ -31,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.data.util.Pair;
 
@@ -63,38 +62,59 @@ public final class DbFilterBuilder {
         return filters;
     }
 
-    public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList, Map<String, Object> fieldList, Class<?> clazz) {
+    public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList, Map<String, Object> fieldList,
+            Class<?> clazz) {
         return buildFilter(mapFilter, errorList, fieldList, LogicalOperator.AND, clazz);
     }
 
-    public static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList, Map<String, Object> fieldList,
+    static List<DbFilter> buildFilter(Map<String, Object> mapFilter, List<String> errorList, Map<String, Object> fieldList,
             LogicalOperator logicalOperator, Class<?> clazz) {
-        final var filters = new ArrayList<DbFilter>();
-        mapFilter.forEach((key, filterValue) ->
-        {
-            LogicalOperator logicalWrapper = null;
-            if (PageRequestBuilder.PAGE_PAR.equals(key)) {
-                log.debug("Empty _page was sent as filter");
-            }
-            else if (key.equalsIgnoreCase("NOT")) {
-                logicalWrapper = NOT;
+        ArrayList<DbFilter> filters = new ArrayList<>();
 
-                LinkedHashMap<String, Object> wrapList = new LinkedHashMap<>();
-                if (mapFilter.get(key) instanceof Map) {
-                    Map<?, ?> tempMap = (Map<?, ?>) mapFilter.get(key);
-                    for (Map.Entry<?, ?> entry : tempMap.entrySet()) {
-                        wrapList.put(String.valueOf(entry.getKey()), entry.getValue());
-                    }
-                }
-                for (Object oKey : wrapList.keySet()) {
-                    processFilterItem(errorList, fieldList, logicalOperator, filters, oKey.toString(), wrapList.get(oKey), logicalWrapper, clazz);
-                }
+        mapFilter.forEach((key, filterValue) -> {
+            if (isPageParameter(key)) {
+                log.debug("Empty _page was sent as filter");
+                return;
+            }
+
+            if (isNotOperator(key)) {
+                processNotOperator(mapFilter, key, errorList, fieldList, logicalOperator, filters, clazz);
             }
             else {
-                processFilterItem(errorList, fieldList, logicalOperator, filters, key, filterValue, logicalWrapper, clazz);
+                processFilterItem(errorList, fieldList, logicalOperator, filters, key, filterValue, null, clazz);
             }
         });
+
         return filters;
+    }
+
+    private static boolean isPageParameter(String key) {
+        return PageRequestBuilder.PAGE_PAR.equals(key);
+    }
+
+    private static boolean isNotOperator(String key) {
+        return key.equalsIgnoreCase("NOT");
+    }
+
+    private static void processNotOperator(Map<String, Object> mapFilter, String key, List<String> errorList,
+            Map<String, Object> fieldList, LogicalOperator logicalOperator,
+            ArrayList<DbFilter> filters, Class<?> clazz) {
+        LogicalOperator logicalWrapper = NOT;
+        Map<String, Object> wrapList = extractWrapList(mapFilter, key);
+
+        wrapList.forEach((oKey, value) ->
+                processFilterItem(errorList, fieldList, logicalOperator, filters, oKey, value, logicalWrapper, clazz)
+        );
+    }
+
+    private static Map<String, Object> extractWrapList(Map<String, Object> mapFilter, String key) {
+        Map<String, Object> wrapList = new LinkedHashMap<>();
+        if (mapFilter.get(key) instanceof Map) {
+            ((Map<?, ?>) mapFilter.get(key)).forEach((entryKey, entryValue) ->
+                    wrapList.put(String.valueOf(entryKey), entryValue)
+            );
+        }
+        return wrapList;
     }
 
     private static void processFilterItem(List<String> errorList, Map<String, Object> fieldList, LogicalOperator logicalOperator,
@@ -113,7 +133,6 @@ public final class DbFilterBuilder {
                 .value(filterValue)
                 .logicalOperator(logicalOperator)
                 .wrappedLogicalOperator(logicalWrapper)
-                .controlFlag(getFlags(filterValue))
                 .originalClass(clazz)
                 .build();
 
@@ -133,23 +152,11 @@ public final class DbFilterBuilder {
         filters.add(filter);
     }
 
-    private static ArrayList<ControlFlag> getFlags(Object value) {
-        if (value instanceof Map map) {
-            ArrayList<String> stringList = (ArrayList<String>) map.get("flags");
-            if (nonNull(stringList)) {
-                return stringList.stream()
-                        .map(ControlFlag::valueOf)
-                        .collect(Collectors.toCollection(ArrayList::new));
-            }
-        }
-        return new ArrayList<>();
-    }
-
     private static ArrayList<?> convertToList(DbFilter filter, Object value) {
-        ArrayList<String> converted;
         if (isNull(value)) {
             return new ArrayList<>();
         }
+        ArrayList<String> converted;
         if (value instanceof Map map) {
             converted = new ArrayList<>(map.values());
         }
@@ -164,8 +171,9 @@ public final class DbFilterBuilder {
             }
         }
 
-        if (!((List<?>) converted).isEmpty() && ((((ArrayList) converted).get(0).getClass()).getTypeName()).equals("java.lang.Integer")) {
-            return (ArrayList<?>) converted.stream().map(Long::valueOf).collect(Collectors.toList());
+        if (!((List<?>) converted).isEmpty() && ((((ArrayList<?>) converted).get(0).getClass()).getTypeName()).equals(
+                "java.lang.Integer")) {
+            return (ArrayList<?>) converted.stream().map(Long::valueOf).toList();
         }
         return converted;
     }
@@ -207,34 +215,48 @@ public final class DbFilterBuilder {
     }
 
     private static HashMap<String, Object> getFieldList(Class<?> clazz) {
-        var fields = new HashMap<String, Object>();
-        List<Class<?>> classes = new ArrayList<>();
+        HashMap<String, Object> fieldsMap = new HashMap<>();
+        List<Class<?>> classHierarchy = getClassHierarchy(clazz);
 
-        Class<?> cls = clazz;
-        do {
-            classes.add(cls);
-            cls = cls.getSuperclass();
-        }
-        while (cls != null && !cls.equals(Object.class));
-
-        for (int i = classes.size() - 1; i >= 0; i--) {
-            for (Field f : classes.get(i).getDeclaredFields()) {
-                if (nonNull(f.getType().getAnnotation(Entity.class))) {
-                    fields.put(f.getName(), new ArrayList<>());
-                    for (Field nestedField : f.getType().getDeclaredFields()) {
-                        ((List) fields.get(f.getName())).add(Pair.of(nestedField.getName(), nestedField.getType()));
-                    }
+        for (Class<?> currentClass : classHierarchy) {
+            for (Field field : currentClass.getDeclaredFields()) {
+                if (field.getType().isAnnotationPresent(Entity.class)) {
+                    List<Pair<String, Class<?>>> nestedFields = getNestedFields(field);
+                    fieldsMap.put(field.getName(), nestedFields);
                 }
                 else {
-                    var type = f.getType();
-                    if (f.getType().toString().contains(clazz.getCanonicalName())) {
-                        type = type.getSuperclass();
-                    }
-                    fields.put(f.getName(), type);
+                    Class<?> fieldType = adjustFieldType(field, clazz);
+                    fieldsMap.put(field.getName(), fieldType);
                 }
             }
         }
-        return fields;
+
+        return fieldsMap;
+    }
+
+    private static List<Class<?>> getClassHierarchy(Class<?> clazz) {
+        List<Class<?>> classes = new ArrayList<>();
+        Class<?> currentClass = clazz;
+        while (currentClass != null && !currentClass.equals(Object.class)) {
+            classes.add(currentClass);
+            currentClass = currentClass.getSuperclass();
+        }
+        return classes;
+    }
+
+    private static List<Pair<String, Class<?>>> getNestedFields(Field field) {
+        List<Pair<String, Class<?>>> nestedFields = new ArrayList<>();
+        for (Field nestedField : field.getType().getDeclaredFields()) {
+            nestedFields.add(Pair.of(nestedField.getName(), nestedField.getType()));
+        }
+        return nestedFields;
+    }
+
+    private static Class<?> adjustFieldType(Field field, Class<?> clazz) {
+        if (field.getType().toString().contains(clazz.getCanonicalName())) {
+            return field.getType().getSuperclass();
+        }
+        return field.getType();
     }
 
     public static boolean hasAnnotation(String className, Class<? extends Annotation> annotationClass) {
@@ -247,11 +269,9 @@ public final class DbFilterBuilder {
             }
             Class<?> cls = Class.forName(className);
             return cls.isAnnotationPresent(annotationClass);
-
         }
         catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            log.warn("ClassNotFoundException in hasAnnotation.");
+            log.warn("ClassNotFoundException {} in hasAnnotation.", className);
             return false;
         }
     }

@@ -38,7 +38,7 @@ import com.hiperboot.pagination.PageRequestBuilder;
 
 import jakarta.persistence.EntityManager;
 
-public class HiperBootRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> implements HiperBootRepository<T, ID> {
+public class HiperBootRepositoryImpl<T, I> extends SimpleJpaRepository<T, I> implements HiperBootRepository<T, I> {
 
     private final HiperBootFilterGenerator<T> filterGenerator;
     private final ExtraCriteriaStrategy<T> extraCriteriaStrategyImplementation;

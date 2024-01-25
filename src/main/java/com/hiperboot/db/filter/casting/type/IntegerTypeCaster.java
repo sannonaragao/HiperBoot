@@ -13,27 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.filter;
+package com.hiperboot.db.filter.casting.type;
 
-import java.util.ArrayList;
+import com.hiperboot.db.filter.casting.TypeCaster;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+public class IntegerTypeCaster implements TypeCaster<Integer> {
+    @Override
+    public Integer cast(String stringValue) {
+        return safelyParseInteger(stringValue);
+    }
 
-@Data
-@Getter
-@Setter
-@Builder
-public class DbFilter {
-    private String field;
-    private QueryOperator operator;
-    private Object value;
-    private ArrayList<?> values;
-    private boolean entity;
-    private Class<?> type;
-    private Class<?> originalClass;
-    private LogicalOperator logicalOperator;
-    private LogicalOperator wrappedLogicalOperator;
+    private Integer safelyParseInteger(String stringValue) {
+        Long longTest = Long.parseLong(stringValue);
+        if (longTest.compareTo((long) Integer.MAX_VALUE) > 0) {
+            return Integer.MAX_VALUE;
+        }
+        return Integer.valueOf(stringValue);
+    }
 }

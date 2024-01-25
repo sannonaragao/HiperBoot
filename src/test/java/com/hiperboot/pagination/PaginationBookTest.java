@@ -42,7 +42,7 @@ class PaginationBookTest extends BaseTestClass {
 
         assertThat(pageTest.getTotalPages()).isEqualTo(1);
         assertThat(pageTest.getTotalElements()).isEqualTo(8);
-        assertThat(pageTest.getSort().toString()).isEqualTo("title: DESC");
+        assertThat(pageTest.getSort().toString()).hasToString("title: DESC");
     }
 
     @Test
@@ -62,7 +62,7 @@ class PaginationBookTest extends BaseTestClass {
 
         assertThat(pageTest.getTotalPages()).isEqualTo(1);
         assertThat(pageTest.getTotalElements()).isEqualTo(8);
-        assertThat(pageTest.getSort().toString()).isEqualTo("title: DESC");
+        assertThat(pageTest.getSort().toString()).hasToString("title: DESC");
     }
 
     @Test
@@ -75,6 +75,6 @@ class PaginationBookTest extends BaseTestClass {
         assertThat(pageTest.getTotalPages()).isEqualTo(2);
         assertThat(pageTest.getTotalElements()).isEqualTo(8);
         assertThat(pageTest.getContent()).hasSize(5);
-        assertThat(pageTest.getSort().toString()).isEqualTo("title: ASC,published: ASC");
+        assertThat(pageTest.getSort().toString()).hasToString("title: ASC,published: ASC");
     }
 }

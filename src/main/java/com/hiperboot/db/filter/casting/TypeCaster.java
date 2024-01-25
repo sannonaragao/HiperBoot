@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.filter;
+package com.hiperboot.db.filter.casting;
 
-public enum ControlFlag {
-    DATE_TIME_SPLIT
+public interface TypeCaster<T extends Comparable> {
+    T cast(String value);
 }

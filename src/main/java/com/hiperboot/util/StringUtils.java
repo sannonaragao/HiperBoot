@@ -30,7 +30,7 @@ public final class StringUtils {
         if (!field.contains("_")) {
             return field;
         }
-        String[] words = field.split("[\\_]+");
+        String[] words = field.split("[ \\_]+");
         var builder = new StringBuilder();
         for (var i = 0; i < words.length; i++) {
             String word = words[i];

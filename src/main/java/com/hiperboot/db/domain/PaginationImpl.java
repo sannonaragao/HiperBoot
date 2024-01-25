@@ -30,7 +30,7 @@ public class PaginationImpl implements Pagination {
     private final Long totalRows;
 
     @Getter(PRIVATE)
-    private final Page page;
+    private final Page<?> page;
 
     public PaginationImpl(Page<?> page) {
         super();
