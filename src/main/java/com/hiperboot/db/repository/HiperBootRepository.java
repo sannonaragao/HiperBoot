@@ -27,7 +27,7 @@ import org.springframework.data.repository.NoRepositoryBean;
 import com.hiperboot.db.domain.BasePage;
 
 @NoRepositoryBean
-public interface HiperBootRepository<T, ID> extends JpaRepository<T, ID> {
+public interface HiperBootRepository<T, P> extends JpaRepository<T, P> {
 
     List<T> hiperBootFilter(Class<T> entity, Map<String, Object> filters);
 

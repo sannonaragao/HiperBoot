@@ -68,9 +68,7 @@ class AllColumnsTypeTest extends BaseTestClass {
         // Assert
         assertThat(results)
                 .as("Check if the results are not empty when filtering by " + filterColumn + " equal to " + expectedValue)
-                .isNotEmpty();
-
-        assertThat(results)
+                .isNotEmpty()
                 .as("Verify that each result's " + filterColumn + " matches the expected value (case insensitive)")
                 .allMatch(result -> expectedValue.equalsIgnoreCase(result.getColString()));
     }

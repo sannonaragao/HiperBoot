@@ -47,11 +47,7 @@ class ManyToOneTest extends BaseTestClass {
         List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, hbEquals(filterCriteria, expectedValue));
 
         // Assert
-        assertThat(results)
-                .as("Check if the results are not empty when filtering by someTable.id equal to " + expectedValue)
-                .isNotEmpty();
-        assertThat(results).hasSize(1);
-        assertThat(results)
+        assertThat(results).hasSize(1)
                 .as("Verify that each result has someTable.id equal to " + expectedValue)
                 .allMatch(result -> result.getSomeTable().getId().toString().equals(expectedValue));
     }
@@ -66,8 +62,6 @@ class ManyToOneTest extends BaseTestClass {
         List<MainTable> results = mainTableHiperBootRepository.hiperBootFilter(MainTable.class, hbEquals(filterCriteria, expectedValue));
 
         // Assert
-        assertThat(results).as("Check if results are not empty")
-                .isNotEmpty();
         assertThat(results).hasSize(1);
         assertThat(results.stream().findFirst().get().getChildTable().getGranChild().stream().findFirst().get().getSomething())
                 .as("Check if the first result matches the expected value")

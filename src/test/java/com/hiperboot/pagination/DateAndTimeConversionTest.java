@@ -22,8 +22,11 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.hiperboot.BaseTestClass;
@@ -35,193 +38,83 @@ class DateAndTimeConversionTest extends BaseTestClass {
     @Autowired
     private ParentTableHiperBootRepository parentTableHiperBootRepository;
 
-    @Test
-    void colDateIsoDateTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, hbEquals("colDate", "2024-01-19"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColDate()).isEqualTo("2024-01-19");
+    private static Stream<Arguments> dateTimeArguments() {
+        return Stream.of(
+                Arguments.of("2024-01-19", "2024-01-19T00:00"),
+                Arguments.of("2024-01-18T15:00:00", "2024-01-18T15:00"),
+                Arguments.of("2024-01-17T15:00:00+01:00", "2024-01-17T15:00"),
+                Arguments.of("2024-01-16T14:00:00Z", "2024-01-16T14:00"),
+                Arguments.of("Mon, 15 Jan 2024 15:00:00 GMT", "2024-01-15T15:00"),
+                Arguments.of("2024-01-15 15:00:00.0", "2024-01-15T15:00")
+        );
     }
 
-    @Test
-    void colDateIsoDatetimeTest() {
+    private static Stream<Arguments> instantArguments() {
+        return Stream.of(
+                Arguments.of("2024-01-19", "2024-01-18T23:00:00Z"),
+                Arguments.of("2024-01-18T15:00:00", "2024-01-18T14:00:00Z"),
+                Arguments.of("2024-01-17T15:00:00+01:00", "2024-01-17T14:00:00Z"),
+                Arguments.of("2024-01-16T13:00:00Z", "2024-01-16T13:00:00Z"),
+                Arguments.of("Mon, 15 Jan 2024 14:00:00 GMT", "2024-01-15T14:00:00Z"),
+                Arguments.of("2024-01-15 15:00:00.0", "2024-01-15T14:00:00Z")
+        );
+    }
+
+    private static Stream<Arguments> dateArguments() {
+        return Stream.of(
+                Arguments.of("2024-01-19", "2024-01-19"),
+                Arguments.of("2024-01-18T15:00:00", "2024-01-18"),
+                Arguments.of("2024-01-17T15:00:00+01:00", "2024-01-17"),
+                Arguments.of("2024-01-16T14:00:00Z", "2024-01-16"),
+                Arguments.of("Mon, 15 Jan 2024 15:00:00 GMT", "2024-01-15"),
+                Arguments.of("2024-01-15 15:00:00.0", "2024-01-15")
+        );
+    }
+
+    private static Stream<Arguments> timestampArguments() {
+        return Stream.of(
+                Arguments.of("2024-01-19", Timestamp.valueOf("2024-01-19 00:00:00.0")),
+                Arguments.of("2024-01-18T15:00:00", Timestamp.valueOf("2024-01-18 15:00:00.0")),
+                Arguments.of("2024-01-17T15:00:00+01:00", Timestamp.valueOf("2024-01-17 15:00:00.0")),
+                Arguments.of("2024-01-16T14:00:00Z", Timestamp.valueOf("2024-01-16 14:00:00.0")),
+                Arguments.of("Mon, 15 Jan 2024 15:00:00 GMT", Timestamp.valueOf("2024-01-15 15:00:00.0")),
+                Arguments.of("2024-01-15 15:00:00.0", Timestamp.valueOf("2024-01-15 15:00:00.0"))
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("dateTimeArguments")
+    void colLocalDateTimeTest(String input, String expected) {
         List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colDate", "2024-01-18T15:00:00"));
+                hbEquals("colLocalDateTime", input));
         assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColDate()).isEqualTo("2024-01-18");
+        assertThat(results.get(0).getColLocalDateTime()).isEqualTo(LocalDateTime.parse(expected));
     }
 
-    @Test
-    void colDateIsoDatetimeTzTest() {
+    @ParameterizedTest
+    @MethodSource("instantArguments")
+    void colInstantTest(String input, String expected) {
         List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colDate", "2024-01-17T15:00:00+01:00"));
+                hbEquals("colInstant", input));
         assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColDate()).isEqualTo("2024-01-17");
+        assertThat(results.get(0).getColInstant()).isEqualTo(Instant.parse(expected));
     }
 
-    @Test
-    void colDateIsoDatetimeUtcTest() {
+    @ParameterizedTest
+    @MethodSource("dateArguments")
+    void colDateTest(String input, String expected) {
         List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colDate", "2024-01-16T14:00:00Z"));
+                hbEquals("colDate", input));
         assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColDate()).isEqualTo("2024-01-16");
+        assertThat(results.get(0).getColDate()).isEqualTo(expected);
     }
 
-    @Test
-    void colDateRfc1123Test() {
+    @ParameterizedTest
+    @MethodSource("timestampArguments")
+    void colTimestampTest(String input, Timestamp expected) {
         List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colDate", "Mon, 15 Jan 2024 15:00:00 GMT"));
+                hbEquals("colTimestamp", input));
         assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColDate()).isEqualTo("2024-01-15");
-    }
-
-    @Test
-    void colDateSqlDatetimeTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colDate", "2024-01-15 15:00:00.0"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColDate()).isEqualTo("2024-01-15");
-    }
-
-    @Test
-    void colTimestampIsoDateTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colTimestamp", "2024-01-19"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColTimestamp()).isEqualTo(Timestamp.valueOf("2024-01-19 00:00:00.0"));
-    }
-
-    @Test
-    void colTimestampIsoDatetimeTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colTimestamp", "2024-01-18T15:00:00"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColTimestamp()).isEqualTo(Timestamp.valueOf("2024-01-18 15:00:00.0"));
-    }
-
-    @Test
-    void colTimestampIsoDatetimeTzTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colTimestamp", "2024-01-17T15:00:00+01:00"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColTimestamp()).isEqualTo(Timestamp.valueOf("2024-01-17 15:00:00.0"));
-    }
-
-    @Test
-    void colTimestampIsoDatetimeUtcTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colTimestamp", "2024-01-16T14:00:00Z"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColTimestamp()).isEqualTo(Timestamp.valueOf("2024-01-16 14:00:00.0"));
-    }
-
-    @Test
-    void colTimestampRfc1123Test() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colTimestamp", "Mon, 15 Jan 2024 15:00:00 GMT"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColTimestamp()).isEqualTo(Timestamp.valueOf("2024-01-15 15:00:00.0"));
-    }
-
-    @Test
-    void colTimestampSqlDatetimeTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colTimestamp", "2024-01-15 15:00:00.0"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColTimestamp()).isEqualTo(Timestamp.valueOf("2024-01-15 15:00:00.0"));
-    }
-
-    @Test
-    void colInstantIsoDateTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, hbEquals("colInstant", "2024-01-19"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColInstant()).isEqualTo(Instant.parse("2024-01-18T23:00:00Z"));
-    }
-
-    @Test
-    void colInstantIsoDatetimeTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colInstant", "2024-01-18T15:00:00"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColInstant()).isEqualTo(Instant.parse("2024-01-18T14:00:00Z"));
-    }
-
-    @Test
-    void colInstantIsoDatetimeTzTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colInstant", "2024-01-17T15:00:00+01:00"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColInstant()).isEqualTo(Instant.parse("2024-01-17T14:00:00Z"));
-    }
-
-    @Test
-    void colInstantIsoDatetimeUtcTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colInstant", "2024-01-16T13:00:00Z"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColInstant()).isEqualTo(Instant.parse("2024-01-16T13:00:00Z"));
-    }
-
-    @Test
-    void colInstantRfc1123Test() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colInstant", "Mon, 15 Jan 2024 14:00:00 GMT"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColInstant()).isEqualTo(Instant.parse("2024-01-15T14:00:00Z"));
-    }
-
-    @Test
-    void colInstantSqlDatetimeTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colInstant", "2024-01-15 15:00:00.0"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColInstant()).isEqualTo(Instant.parse("2024-01-15T14:00:00Z"));
-    }
-
-    @Test
-    void colLocalDateTimeIsoDateTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colLocalDateTime", "2024-01-19"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColLocalDateTime()).isEqualTo(LocalDateTime.parse("2024-01-19T00:00"));
-    }
-
-    @Test
-    void colLocalDateTimeIsoDatetimeTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colLocalDateTime", "2024-01-18T15:00:00"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColLocalDateTime()).isEqualTo(LocalDateTime.parse("2024-01-18T15:00"));
-    }
-
-    @Test
-    void colLocalDateTimeIsoDatetimeTzTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colLocalDateTime", "2024-01-17T15:00:00+01:00"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColLocalDateTime()).isEqualTo(LocalDateTime.parse("2024-01-17T15:00"));
-    }
-
-    @Test
-    void colLocalDateTimeIsoDatetimeUtcTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colLocalDateTime", "2024-01-16T14:00:00Z"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColLocalDateTime()).isEqualTo(LocalDateTime.parse("2024-01-16T14:00"));
-    }
-
-    @Test
-    void colLocalDateTimeRfc1123Test() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colLocalDateTime", "Mon, 15 Jan 2024 15:00:00 GMT"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColLocalDateTime()).isEqualTo(LocalDateTime.parse("2024-01-15T15:00"));
-    }
-
-    @Test
-    void colLocalDateTimeSqlDatetimeTest() {
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals("colLocalDateTime", "2024-01-15 15:00:00.0"));
-        assertThat(results).hasSize(1);
-        assertThat(results.get(0).getColLocalDateTime()).isEqualTo(LocalDateTime.parse("2024-01-15T15:00"));
+        assertThat(results.get(0).getColTimestamp()).isEqualTo(expected);
     }
 }

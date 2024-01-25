@@ -31,6 +31,9 @@ import java.util.Map;
 
 public class HBUtils {
 
+    private HBUtils() {
+    }
+
     public static class HBUtilBuilder extends LinkedHashMap<String, Object> {
 
         private HBUtilBuilder(Map<String, Object> initialMap) {
@@ -57,7 +60,7 @@ public class HBUtils {
             createPage();
             Object pageParams = this.get(PAGE_PAR);
             if (pageParams instanceof Map) {
-                ((Map) pageParams).put(SORT, order);
+                ((Map<String, Object>) pageParams).put(SORT, order);
             }
             return this;
         }
@@ -66,7 +69,7 @@ public class HBUtils {
             createPage();
             Object pageParams = this.get(PAGE_PAR);
             if (pageParams instanceof Map) {
-                ((Map) pageParams).put(OFFSET, offset);
+                ((Map<String, Object>) pageParams).put(OFFSET, offset);
             }
             return this;
         }
@@ -75,7 +78,7 @@ public class HBUtils {
             createPage();
             Object pageParams = this.get(PAGE_PAR);
             if (pageParams instanceof Map) {
-                ((Map) pageParams).put(LIMIT, limit);
+                ((Map<String, Object>) pageParams).put(LIMIT, limit);
             }
             return this;
         }
@@ -154,7 +157,7 @@ public class HBUtils {
     }
 
     public static boolean pageExists() {
-        return true;
+        return Boolean.TRUE;
     }
 
     public static Map<String, Object> addPageToFilter(Map<String, Object> filter, Map<String, Object> page) {

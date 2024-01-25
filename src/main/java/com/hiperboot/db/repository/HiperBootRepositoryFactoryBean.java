@@ -17,7 +17,6 @@ package com.hiperboot.db.repository;
 
 import java.io.Serializable;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactoryBean;
@@ -25,14 +24,14 @@ import org.springframework.data.repository.core.support.RepositoryFactorySupport
 
 import jakarta.persistence.EntityManager;
 
-public class HiperBootRepositoryFactoryBean<R extends HiperBootRepository<T, ID>, T, ID extends Serializable>
-        extends JpaRepositoryFactoryBean<R, T, ID> implements ApplicationContextAware {
+public class HiperBootRepositoryFactoryBean<R extends HiperBootRepository<T, P>, T, P extends Serializable>
+        extends JpaRepositoryFactoryBean<R, T, P> implements ApplicationContextAware {
 
-    @Autowired
     private ApplicationContext context;
 
-    public HiperBootRepositoryFactoryBean(Class<R> repositoryInterface) {
+    public HiperBootRepositoryFactoryBean(Class<R> repositoryInterface, ApplicationContext context) {
         super(repositoryInterface);
+        this.context = context;
     }
 
     @Override
