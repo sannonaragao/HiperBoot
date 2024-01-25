@@ -45,12 +45,12 @@ import com.hiperboot.db.repository.ParentTableHiperBootRepository;
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-class HiperBootRepositoryColumnsTest extends BaseTestClass {
+class AllColumnsTypeTest extends BaseTestClass {
 
     @Autowired
     private ParentTableHiperBootRepository parentTableHiperBootRepository;
 
-    private List<String> columnsGreaterThanIncompatible = List.of("colBoolean", "colStatusEnum", "someTable", "children");
+    private List<String> columnsGreaterThanIncompatible = List.of("colBoolean", "colStatusEnum", "someTable", "children", "colUUID");
     private List<String> columnsInIncompatible = List.of("colBoolean", "someTable", "children");
     private List<String> columnsThatAreEntities = List.of("someTable", "children");
 
@@ -63,8 +63,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
         String filterColumn = "colString";
 
         // Act
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals(filterColumn, expectedValue));
+        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, hbEquals(filterColumn, expectedValue));
 
         // Assert
         assertThat(results)
@@ -81,8 +80,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
         String expectedValue = "abc";
         String filterColumn = "colString";
 
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals(filterColumn, expectedValue));
+        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, hbEquals(filterColumn, expectedValue));
         assertThat(results).hasSize(2);
 
         results.forEach(row ->
@@ -109,9 +107,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
                 if (isNull(val)) {
                     continue;
                 }
-
-                List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                        hbEquals(columnName, val.toString()));
+                List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, hbEquals(columnName, val.toString()));
                 assertThat(results).isNotEmpty();
 
                 results.forEach(row -> {
@@ -141,8 +137,7 @@ class HiperBootRepositoryColumnsTest extends BaseTestClass {
                     continue;
                 }
 
-                List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                        hbNot(hbEquals(columnName, val.toString())));
+                List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, hbNot(hbEquals(columnName, val.toString())));
                 assertThat(results).isNotEmpty();
 
                 results.forEach(row -> {

@@ -79,7 +79,12 @@ public class HiperBootRepositoryImpl<T, ID> extends SimpleJpaRepository<T, ID> i
         return nonNull(specifications) ? findAll(specifications, pageable) : findAll(pageable);
     }
 
-    public Specification<T> getSpecification(Class<T> entity, List<DbFilter> filters) {
+    @Override
+    public Specification<T> getSpecificationFromFilters(Class<T> entity, Map<String, Object> filters) {
+        return getSpecification(entity, getDbFilters(entity, filters));
+    }
+
+    private Specification<T> getSpecification(Class<T> entity, List<DbFilter> filters) {
         Specification<T> specifications = filterGenerator.getSpecificationFromFilters(filters);
         if (nonNull(extraCriteriaStrategyImplementation)) {
             return extraCriteriaStrategyImplementation.process(specifications, entity);
