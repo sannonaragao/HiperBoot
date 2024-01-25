@@ -13,27 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.filter;
+package com.hiperboot.db.filter.casting.type;
 
-import java.util.ArrayList;
+import static com.hiperboot.db.filter.DatatypeConverter.convertStringToDate;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import java.sql.Date;
 
-@Data
-@Getter
-@Setter
-@Builder
-public class DbFilter {
-    private String field;
-    private QueryOperator operator;
-    private Object value;
-    private ArrayList<?> values;
-    private boolean entity;
-    private Class<?> type;
-    private Class<?> originalClass;
-    private LogicalOperator logicalOperator;
-    private LogicalOperator wrappedLogicalOperator;
+import com.hiperboot.db.filter.casting.TypeCaster;
+import com.hiperboot.util.DateFormatIdentifier;
+
+public class JavaSqlDateTypeCaster implements TypeCaster<Date> {
+    @Override
+    public Date cast(String stringValue) {
+        return convertStringToDate(stringValue, DateFormatIdentifier.identifyDateFormat(stringValue));
+    }
 }

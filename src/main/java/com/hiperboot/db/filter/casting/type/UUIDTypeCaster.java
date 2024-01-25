@@ -13,27 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.filter;
+package com.hiperboot.db.filter.casting.type;
 
-import java.util.ArrayList;
+import java.util.UUID;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import com.hiperboot.db.filter.casting.TypeCaster;
 
-@Data
-@Getter
-@Setter
-@Builder
-public class DbFilter {
-    private String field;
-    private QueryOperator operator;
-    private Object value;
-    private ArrayList<?> values;
-    private boolean entity;
-    private Class<?> type;
-    private Class<?> originalClass;
-    private LogicalOperator logicalOperator;
-    private LogicalOperator wrappedLogicalOperator;
+public class UUIDTypeCaster implements TypeCaster<UUID> {
+    @Override
+    public UUID cast(String stringValue) {
+        return UUID.fromString(stringValue);
+    }
 }
