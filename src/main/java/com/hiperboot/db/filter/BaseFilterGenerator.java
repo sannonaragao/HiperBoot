@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
 
@@ -352,6 +353,9 @@ public abstract class BaseFilterGenerator<T> {
         }
         else if (BigInteger.class.isAssignableFrom(fieldType)) {
             return new BigInteger(stringValue);
+        }
+        else if (UUID.class.isAssignableFrom(fieldType)) {
+            return UUID.fromString(stringValue);
         }
         log.error("Impossible to castToRequiredType. Type {} wasn't found.", fieldType.toString());
         return (Comparable<?>) value;

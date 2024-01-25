@@ -24,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import com.hiperboot.db.StatusEnum;
 
@@ -93,8 +94,8 @@ public class ParentTable {
     private BigDecimal colBigDecimal;
     private BigInteger colBigInteger;
 
-    @Column(name = "col_uuid", columnDefinition = "CHAR(36)")
-    private String colUUID;
+    @Column(name = "col_uuid", columnDefinition = "UUID")
+    private UUID colUUID;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "col_status_enum")

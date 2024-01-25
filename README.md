@@ -385,7 +385,6 @@ This will be applied at ALL THE QUERY'S from the Book entity.
 #### Benefits
 - **Performance Optimization**: Tailor data fetching to specific needs, reducing database queries and data transfer.
 - **Flexibility**: Gain control over how data is retrieved, allowing for fine-tuning of application performance.
-- **Code Clarity**: Explicit fetching strategies improve code readability and maintainability.
 
 #### Use Cases
 - Use `JOIN` for efficient single-query data retrieval.

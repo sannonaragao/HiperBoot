@@ -25,12 +25,3 @@ spring:
       show_sql: true
       ddl-auto: "create"
       dialect: org.hibernate.dialect.H2Dialect
-
-logging:
-  level:
-    web: INFO
-    org.hibernate: INFO
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: INFO
-    org.springframework.jdbc.datasource.init.ScriptUtils: INFO

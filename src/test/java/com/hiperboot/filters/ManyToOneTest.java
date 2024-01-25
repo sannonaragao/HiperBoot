@@ -29,7 +29,7 @@ import com.hiperboot.db.entity.ParentTable;
 import com.hiperboot.db.repository.MainTableHiperBootRepository;
 import com.hiperboot.db.repository.ParentTableHiperBootRepository;
 
-class HiperBootManyToOneTest extends BaseTestClass {
+class ManyToOneTest extends BaseTestClass {
 
     @Autowired
     private ParentTableHiperBootRepository level01Repository;
@@ -38,27 +38,26 @@ class HiperBootManyToOneTest extends BaseTestClass {
     private MainTableHiperBootRepository mainTableHiperBootRepository;
 
     @Test
-    void getByFilter_ShouldReturnNonEmptyResultsForSpecificSomeTableId() {
+    void filterManyToOne_using_pk_test() {
         // Arrange
-        String someTableId = "1";
+        String expectedValue = "1";
         String filterCriteria = "someTable.id";
 
         // Act
-        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, hbEquals(filterCriteria, someTableId));
+        List<ParentTable> results = level01Repository.hiperBootFilter(ParentTable.class, hbEquals(filterCriteria, expectedValue));
 
         // Assert
         assertThat(results)
-                .as("Check if the results are not empty when filtering by someTable.id equal to " + someTableId)
+                .as("Check if the results are not empty when filtering by someTable.id equal to " + expectedValue)
                 .isNotEmpty();
-
+        assertThat(results).hasSize(1);
         assertThat(results)
-                .as("Verify that each result has someTable.id equal to " + someTableId)
-                .allMatch(result -> result.getSomeTable().getId().toString().equals(someTableId));
+                .as("Verify that each result has someTable.id equal to " + expectedValue)
+                .allMatch(result -> result.getSomeTable().getId().toString().equals(expectedValue));
     }
 
-
     @Test
-    void manyToOneWithStringPKTest() {
+    void filter_into_ManyToOne_OneToMany_ManyToOne_test() {
         // Arrange
         String expectedValue = "Nothing3";
         String filterCriteria = "childTable.granChild.something";
@@ -69,7 +68,8 @@ class HiperBootManyToOneTest extends BaseTestClass {
         // Assert
         assertThat(results).as("Check if results are not empty")
                 .isNotEmpty();
-        assertThat(results.get(0).getChildTable().getGranChild().get(0).getSomething())
+        assertThat(results).hasSize(1);
+        assertThat(results.stream().findFirst().get().getChildTable().getGranChild().stream().findFirst().get().getSomething())
                 .as("Check if the first result matches the expected value")
                 .isEqualTo(expectedValue);
     }

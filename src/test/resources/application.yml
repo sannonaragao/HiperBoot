@@ -31,3 +31,4 @@ logging:
     org.hibernate.type.descriptor.sql: INFO
     org.hibernate.type.descriptor.sql.BasicBinder: INFO
     org.springframework.jdbc.datasource.init.ScriptUtils: INFO
+    org.hibernate.SQL.tool.schema.internal.SchemaCreatorImpl: INFO
