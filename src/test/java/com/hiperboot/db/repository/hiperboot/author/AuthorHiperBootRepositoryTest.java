@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository.author;
+package com.hiperboot.db.repository.hiperboot.author;
 
 import static com.hiperboot.util.HBUtils.hbEquals;
 import static org.assertj.core.api.Assertions.assertThat;

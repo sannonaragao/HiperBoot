@@ -15,13 +15,8 @@
  */
 package com.hiperboot.db.repository;
 
-import static java.util.Objects.isNull;
-
 import java.io.Serializable;
-import java.util.Map;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.JpaRepositoryFactory;
 import org.springframework.data.jpa.repository.support.JpaRepositoryImplementation;
@@ -31,43 +26,18 @@ import org.springframework.data.repository.core.RepositoryMetadata;
 import jakarta.persistence.EntityManager;
 
 public class HiperBootRepositoryFactory extends JpaRepositoryFactory {
-
-    private final ApplicationContext context;
-
-    public HiperBootRepositoryFactory(EntityManager entityManager, ApplicationContext context) {
+    public HiperBootRepositoryFactory(EntityManager entityManager /*, ApplicationContext context*/) {
         super(entityManager);
-        this.context = context;
     }
 
     @Override
     protected JpaRepositoryImplementation<?, ?> getTargetRepository(RepositoryInformation information, EntityManager entityManager) {
         JpaEntityInformation<?, Serializable> entityInformation = getEntityInformation(information.getDomainType());
-        ExtraCriteriaStrategy<?> strategy = findExtraCriteriaStrategyImplementation(information.getDomainType());
-
-        return new HiperBootRepositoryImpl<>(entityInformation, entityManager, strategy);
+        return new HiperBootRepositoryImpl<>(entityInformation, entityManager);
     }
 
     @Override
     protected Class<?> getRepositoryBaseClass(RepositoryMetadata metadata) {
         return HiperBootRepositoryImpl.class;
-    }
-
-    private <T> ExtraCriteriaStrategy<T> findExtraCriteriaStrategyImplementation(Class<T> domainType) {
-        Map<String, ExtraCriteriaStrategy> beans = context.getBeansOfType(ExtraCriteriaStrategy.class);
-        for (ExtraCriteriaStrategy<T> strategy : beans.values()) {
-
-            Class<?>[] type = GenericTypeResolver.resolveTypeArguments(strategy.getClass(), ExtraCriteriaStrategy.class);
-
-            if (isNull(type)) {
-                throw new NullPointerException("ExtraCriteriaStrategy is null");
-            }
-            if (type.length < 1) {
-                throw new NullPointerException("ExtraCriteriaStrategy is empty");
-            }
-            if (type[0].equals(domainType)) {
-                return strategy;
-            }
-        }
-        return null;
     }
 }

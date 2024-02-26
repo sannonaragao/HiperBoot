@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository;
+package com.hiperboot.db.repository.jpa;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import com.hiperboot.db.entity.ParentTable;
 
 @Repository
-public interface ParentTableHiperBootRepository extends HiperBootRepository<ParentTable, Long> {
+public interface ParentTableStandardRepository extends JpaRepository<ParentTable, Long>, JpaSpecificationExecutor<ParentTable> {
 }

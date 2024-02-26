@@ -25,7 +25,7 @@ import java.util.Map;
 
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.hiperboot.container.PostgresContainerConfig;
+import com.hiperboot.config.PostgresContainerConfig;
 
 @SpringBootTest
 public class BaseTestClass {

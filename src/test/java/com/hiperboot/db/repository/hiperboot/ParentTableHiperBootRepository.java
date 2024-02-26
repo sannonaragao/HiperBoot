@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository;
+package com.hiperboot.db.repository.hiperboot;
 
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-public interface ExtraCriteriaStrategy<T> {
-    Specification<T> process(Specification<T> specifications, Class<T> type);
+import com.hiperboot.db.entity.ParentTable;
+import com.hiperboot.db.repository.HiperBootRepository;
+
+@Repository
+public interface ParentTableHiperBootRepository extends HiperBootRepository<ParentTable>, JpaRepository<ParentTable, Long> {
 }

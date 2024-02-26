@@ -20,15 +20,13 @@ import java.util.Map;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 
 import com.hiperboot.db.domain.BasePage;
 
 @NoRepositoryBean
-public interface HiperBootRepository<T, P> extends JpaRepository<T, P> {
-
+public interface HiperBootRepository<T> extends JpaSpecificationExecutor<T> {
     List<T> hiperBootFilter(Class<T> entity, Map<String, Object> filters);
 
     Page<T> hiperBootPageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable);
@@ -38,6 +36,4 @@ public interface HiperBootRepository<T, P> extends JpaRepository<T, P> {
     BasePage hiperBootBasePageFilter(Class<T> entity, Map<String, Object> filters, Pageable pageable);
 
     BasePage hiperBootBasePageFilter(Class<T> entity, Map<String, Object> filters);
-
-    Specification<T> getSpecificationFromFilters(Class<T> entity, Map<String, Object> filters);
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository.book;
+package com.hiperboot.db.repository.hiperboot.book;
 
 import static com.hiperboot.util.HBUtils.greaterThan;
 import static com.hiperboot.util.HBUtils.hbAnd;
@@ -41,7 +41,7 @@ class BookHiperBootRepositoryTest extends BaseTestClass {
     void likeContains_ShouldReturnBooksByAuthorNameContainingSubstringCaseInsensitive() {
         // Arrange
         String authorNameSubstring = "%eo%";
-        int expectedNumberOfBooks = 12;
+        int expectedNumberOfBooks = 13;
         String filterCriteria = "author.name";
 
         // Act
@@ -62,7 +62,7 @@ class BookHiperBootRepositoryTest extends BaseTestClass {
     void likeContains_ShouldReturnBooksByAuthorNameContainingAndEndingWithSpecificSubstrings() {
         // Arrange
         String authorNameEndsWith = "Orwell";
-        int expectedNumberOfBooks = 4;
+        int expectedNumberOfBooks = 5;
         String filterCriteria = "author.name";
 
         // Act
@@ -153,13 +153,13 @@ class BookHiperBootRepositoryTest extends BaseTestClass {
     @Test
     void isNotInTest() {
         var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbNot(hbEquals("author.id", "1", "3", "4", "5")));
-        assertThat(list).hasSize(4);
+        assertThat(list).hasSize(5);
     }
 
     @Test
     void isNotInTest_ShouldReturnBooksWhoseAuthorIdIsNotInList() {
         // Arrange
-        int expectedBookCount = 4;
+        int expectedBookCount = 5;
         List<Long> excludedAuthorIds = Arrays.asList(1L, 3L, 4L, 5L);
         String[] excludedAuthorIdsArray = excludedAuthorIds.stream()
                 .map(String::valueOf)

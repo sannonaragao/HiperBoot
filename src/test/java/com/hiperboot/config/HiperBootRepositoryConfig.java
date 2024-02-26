@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository;
+package com.hiperboot.config;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.hiperboot.db.entity.MainTable;
+import com.hiperboot.db.repository.HiperBootRepositoryFactoryBean;
 
-@Repository
-public interface MainTableHiperBootRepository extends HiperBootRepository<MainTable, Long> {
+@Configuration
+@EnableJpaRepositories(repositoryFactoryBeanClass = HiperBootRepositoryFactoryBean.class, basePackages = {
+        "com.hiperboot.db.repository.hiperboot"
+})
+public class HiperBootRepositoryConfig {
 }
