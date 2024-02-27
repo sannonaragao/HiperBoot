@@ -50,7 +50,7 @@ public final class DbFilterBuilder {
     }
 
     public static List<DbFilter> getDbFilters(Class<?> clazz, final Map<String, Object> mapFilter, LogicalOperator logicalOperator) {
-        if (mapFilter.isEmpty()) {
+        if (isNull(mapFilter) || mapFilter.isEmpty()) {
             return new ArrayList<>();
         }
         final var errorList = new ArrayList<String>();

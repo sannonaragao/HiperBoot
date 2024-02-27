@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository;
+package com.hiperboot.config;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-import com.hiperboot.db.entity.ParentTable;
-
-@Repository
-public interface ParentTableStandardRepository extends JpaRepository<ParentTable, Long> {
+@Configuration
+@EnableJpaRepositories(basePackages = { "com.hiperboot.db.repository.jpa" })
+public class JpaRepositoryConfig {
 }

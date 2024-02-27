@@ -15,17 +15,9 @@ HiperBoot simplifies query building by utilizing existing relationships between 
 
 ---
 
-### Integrating HiperBoot into Your Project
+## Integrating HiperBoot into Your Project
 
-To use HiperBoot in your Spring Boot application is straightforward and takes just 3 steps:
-1) add the dependency 
-2) inform the Repository Factory 
-3) extend your repositories from HiperBootRepository instead of JpaRepository (or similar).   
-
-You can add into your current Spring Boot application easily.
- can add HiperBoot to your project using Maven or Gradle.
-
-### Step 1 - Adding dependency
+### Adding dependency
 
 Just, use your favorite build tool.
 
@@ -34,16 +26,51 @@ Just, use your favorite build tool.
 <dependency>
     <groupId>io.github.sannonaragao</groupId>
     <name>hiperboot</name>
-    <version>latest.release</version>
+    <version>[LATEST]</version>
 </dependency>
 ```
 **Gradle**
 ```gradle
-implementation group: 'io.github.sannonaragao', name: 'hiperboot', version: 'latest.release'
+implementation group: 'io.github.sannonaragao', name: 'hiperboot', version: '0.5.0+'
 ```
 
-### Step 2 - inform the Repository Factory
-This configuration is vital as it sets up the necessary repository factory bean class for HiperBoot.
+### Choose how to integrate: Extension of Spring Repository or Standalone Service
+There are 2 ways to use HiperBoot in your Spring Boot application: 1) Using as an extension of the Spring repository or 2) as a Standalone Service.
+
+---
+#### Using as a Standalone Service
+Add to the Spring repository you want to retrieve data the Spring interface JpaSpecificationExecutor as the example below:
+
+```java
+public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificationExecutor<Book>
+{
+}
+```
+Using as a standalone service the data should be retrieved like this:
+
+```java
+@Autowired
+private BookRepository bookRepository;
+private HiperBootService<Book> hiperBootService;
+
+@PostConstruct
+public void initialize()
+{
+  this.hiperBootService = new HiperBootService<>(bookRepository);
+}
+
+@PostMapping("/books-list")
+public ResponseEntity<List<Book>> getBooks(@RequestBody Map<String, Object> body)
+{
+  return new ResponseEntity<>(hiperBootService.hiperBootFilter(Book.class, body), HttpStatus.OK);
+}
+```
+Example: To see an example of this method of implementation check  ***[this GitHub repository](https://github.com/sannonaragao/hiperboot-service-example/)***
+
+---
+#### Using as an Extension of the Spring Repository
+
+To use this method is vital to sets up the necessary repository factory bean class for HiperBoot.
 
 ```java
 @SpringBootApplication
@@ -55,22 +82,34 @@ public class HiperbootExampleApplication {
 }
 ```
 
-You can use HiperBoot without the custom repository factory and I will provide examples about how to do it soon.
-
-### Step 3 - Extend from HiperBootRepository   
-Last thing to do is simply extend from the HiperBootRepository interface, mirroring the familiar Spring repository pattern. This extension not only equips your repository with all the standard JpaRepository methods, but also enriches it with HiperBoot's advanced features.
+Extend from HiperBootRepository, mirroring the familiar Spring repository pattern. This extension not only equips your repository with all the standard JpaRepository methods, but also enriches it with HiperBoot's advanced features.
 
 ```java
-package com.hiperbootexample.repository;
-
 import com.hiperboot.db.repository.HiperBootRepository;
 import com.hiperbootexample.entity.Book;
 
-public interface BookRepository extends HiperBootRepository<Book, Long> {
+public interface BookRepository extends HiperBootRepository<Book>, JpaRepository<Book, Long> {
 }
 ```
+
+Using as a HiperBootRepository the data should be retrieved like this:
+```java
+@Autowired
+private BookRepository bookRepository;
+
+@PostMapping("/books-list")
+public ResponseEntity<List<Book>> getBooks(@RequestBody Map<String, Object> body) {
+    return new ResponseEntity<>(bookRepository.hiperBootFilter(Book.class, body), HttpStatus.OK);
+}
+```
+Example: To see an example of this method of implementation check  ***[this GitHub repository](https://github.com/sannonaragao/hiperboot-example/)***
+
 ---
+
 ## Overview of Capabilities
+
+
+**IMPORTANT**:  In the examples below works exactly the same for both types of configuration (extending the repository or as a standalone service).
 
 HiperBoot enhances the capability of Spring Data JPA by extending the JpaRepository interface. It adds additional query methods and mechanisms, making it easier to work with queries in a more streamlined and efficient manner.
 
@@ -95,7 +134,7 @@ You can call the query directly using the json object, having all the options av
 ```java
   @PostMapping("/books-list")
   public ResponseEntity<List<Book>> getBooks(@RequestBody Map<String, Object> body) {
-    return new ResponseEntity<>(bookRepository.hiperBootFilter(Book.class, body), HttpStatus.OK);
+    return new ResponseEntity<>(hiperBootService.hiperBootFilter(Book.class, body), HttpStatus.OK);
   }
 ```
 
@@ -104,7 +143,7 @@ Or you can provide a more controlled access and use  logical helpers to make the
   @PostMapping("/books-author-price")
   public ResponseEntity<List<Book>> getBooksByAuthorPrice(@RequestBody String name, String price) {
     var body = hbAnd(hbEquals("author.name", name), greaterThan("price", price));
-    return new ResponseEntity<>(bookRepository.hiperBootFilter(Book.class, body), HttpStatus.OK);
+    return new ResponseEntity<>(hiperBootService.hiperBootFilter(Book.class, body), HttpStatus.OK);
   }
 ```
 
@@ -163,7 +202,7 @@ This method is used to filter records where a specified column equals a given va
 }
 ```
 ```java
-  var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbEquals("id", "6") ); 
+  var list = hiperBootService.hiperBootFilter(Book.class, hbEquals("id", "6") ); 
 ```
 
 When multiple values are provided, it fetches records where the column matches any of the values working as the "in" operator of the SQL.
@@ -174,7 +213,7 @@ When multiple values are provided, it fetches records where the column matches a
 ```
 
 ```java
-  var list = bookHiperBootRepository.hiperBootFilter(Book.class,  hbEquals("id", "1", "6", "3"));
+  var list = hiperBootService.hiperBootFilter(Book.class,  hbEquals("id", "1", "6", "3"));
 ```
 #### IsNull
 Fetches records where the specified column value is null. This is useful for finding records with null value in a particular column.
@@ -184,7 +223,7 @@ Fetches records where the specified column value is null. This is useful for fin
 }
 ```
 ```java
-  var list = bookHiperBootRepository.hiperBootFilter(Book.class,  hbIsNull("price"));
+  var list = hiperBootService.hiperBootFilter(Book.class,  hbIsNull("price"));
 ```
 #### Greater Than
 Used to retrieve records where the value of a specified column is greater or equals than a given value.
@@ -198,7 +237,7 @@ Used to retrieve records where the value of a specified column is greater or equ
 ```
 
 ```java
-  var list = bookHiperBootRepository.hiperBootFilter(Book.class, greaterThan("price", "5") );
+  var list = hiperBootService.hiperBootFilter(Book.class, greaterThan("price", "5") );
 ```
 
 #### Smaller Than
@@ -212,7 +251,7 @@ Opposite of greaterThan, it fetches records where the column value is less or eq
 ```
 
 ```java
-  var list = bookHiperBootRepository.hiperBootFilter(Book.class, smallerThan("price", "10") );
+  var list = hiperBootService.hiperBootFilter(Book.class, smallerThan("price", "10") );
 ```
 
 #### Between
@@ -228,7 +267,7 @@ This method is used for range queries. It fetches records where the column value
 ```
 
 ```java
-  var list = bookHiperBootRepository.hiperBootFilter(Book.class, between("price", "5", "10"));
+  var list = hiperBootService.hiperBootFilter(Book.class, between("price", "5", "10"));
 ```
 
 #### LIKE
@@ -249,7 +288,7 @@ Also, it is obvious but worth recalling, that it works just with STRINGS.
 ```
 
 ```java
-        var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbEquals("author.name", "J%"));
+        var list = hiperBootService.hiperBootFilter(Book.class, hbEquals("author.name", "J%"));
 ```
 
 #### Not
@@ -264,7 +303,7 @@ This is used to negate a filter condition. If you want to fetch records that do 
 ```
 
 ```java
-  var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbNot(hbEquals("id", "1", "6", "3")));
+  var list = hiperBootService.hiperBootFilter(Book.class, hbNot(hbEquals("id", "1", "6", "3")));
 ```
 #### AND
 Combines multiple filter conditions. All conditions must be met for a record to be included in the result. It's like using 'AND' in SQL where multiple criteria are specified.
@@ -282,7 +321,7 @@ And it is the default filter operation.  When you put several conditions togethe
 To build that on Java you can use a helper to concatenate those multiple conditions, like the example below:
 
 ```java
-  var list = bookHiperBootRepository.hiperBootFilter(Book.class, hbAnd(hbEquals("author.id", "4"), hbNot(hbIsNull("price") )));
+  var list = hiperBootService.hiperBootFilter(Book.class, hbAnd(hbEquals("author.id", "4"), hbNot(hbIsNull("price") )));
 ```
 
 ---
@@ -300,7 +339,7 @@ Sorted by title:
 }
 ```
 ```java
-  var pageTest = bookHiperBootRepository.hiperBootPageFilter(Book.class, sortedBy("title"));
+  var pageTest = hiperBootService.hiperBootPageFilter(Book.class, sortedBy("title"));
 ```
 
 
@@ -313,11 +352,11 @@ Sorted by Autor's name and price descending:
 }
 ```
 ```java
-  var pageTest = bookHiperBootRepository.hiperBootPageFilter(Book.class, sortedBy("author.name, -price"));
+  var pageTest = hiperBootService.hiperBootPageFilter(Book.class, sortedBy("author.name, -price"));
 ```
 To concatenate a filter criteria with a sort, you can use this syntax:
 ```java
-  var pageTest = bookHiperBootRepository.hiperBootPageFilter(Book.class, hbEquals("author.id", "3").sortedBy("-title"));
+  var pageTest = hiperBootService.hiperBootPageFilter(Book.class, hbEquals("author.id", "3").sortedBy("-title"));
 ```
 
 ### Pagination
@@ -345,7 +384,7 @@ In the example below I will combine the pagination with other criterias we alrea
 ```
 
 ```java
-  var pageTest = bookHiperBootRepository.hiperBootPageFilter(Book.class, hbEquals("author.id", "3").sortedBy("title, published").offset(0).limit(5));
+  var pageTest = hiperBootService.hiperBootPageFilter(Book.class, hbEquals("author.id", "3").sortedBy("title, published").offset(0).limit(5));
 ```
 
 ## **Advanced Features**
@@ -413,7 +452,7 @@ HiperBoot support the following datetime formats: ISO_DATETIME, ISO_DATETIME_TZ,
 ```
 ---
 
-Did I remember to invite you to check out a cool, runnable example? I'm not entirely sure, so just in case I didn't: You're warmly invited to explore the [example project repository](https://github.com/sannonaragao/hiperboot-example/). It's waiting for you to dive in!
+Did I remember to invite you to check out a cool, runnable example? I'm not entirely sure, so just in case I didn't: You're warmly invited to explore the  [Standalone Service Example](https://github.com/sannonaragao/hiperboot-service-example/) or [Repository Extension Example](https://github.com/sannonaragao/hiperboot-example/). It's waiting for you to dive in!
 
 Also, if you find the project intriguing or useful, don't forget to leave a ⭐ on [this repository](https://github.com/sannonaragao/hiperboot/). Your star would be a great encouragement for us to continue improving!
 

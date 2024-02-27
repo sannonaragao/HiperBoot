@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository.book;
+package com.hiperboot.db.repository.hiperboot;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.hiperboot.db.entity.book.Book;
+import com.hiperboot.db.entity.MainTable;
 import com.hiperboot.db.repository.HiperBootRepository;
 
 @Repository
-public interface BookHiperBootRepository extends HiperBootRepository<Book, Long> {
+public interface MainTableHiperBootRepository extends HiperBootRepository<MainTable>, JpaRepository<MainTable, Long> {
 }
