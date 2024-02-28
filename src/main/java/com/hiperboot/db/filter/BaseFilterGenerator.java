@@ -91,53 +91,25 @@ public abstract class BaseFilterGenerator<T> {
         Predicate predicate = null;
         validateTypeByOperation(input);
         switch (input.getOperator()) {
-            case JOIN:
-                if (isNull(input.getValue())) {
-                    predicate = cb.isNull(rootField);
-                }
-                else {
-                    predicate = getPredicateJoin(input, root, cb);
-                }
-                break;
-            case EQUALS:
-                if (isNull(input.getValue())) {
-                    predicate = cb.isNull(rootField);
-                }
-                else {
-                    predicate = cb.equal(rootFieldUpper, castToRequiredType(rootFieldType, input.getValue()));
-                }
-                break;
-            case LIKE:
-                predicate = cb.like((Expression<String>) rootFieldUpper, input.getValue().toString().toUpperCase());
-
-                break;
-            case IN:
-                if (String.class.isAssignableFrom(rootFieldType)) {
-                    predicate = getInPredicate(input, cb, root);
-                }
-                else {
-                    predicate = cb.in(root.get(input.getField())).value(castToList(rootFieldType, (List<String>) input.getValues()));
-                }
-                break;
-            case BETWEEN:
-                predicate = getBetween(input, cb, rootField, rootFieldType);
-                break;
-            case GREATER_THAN:
-                if (String.class.isAssignableFrom(rootFieldType)) {
-                    predicate = cb.greaterThanOrEqualTo((Expression<String>) rootFieldUpper,
-                            cb.literal((String) getFrom(input, rootFieldType)));
-                }
-                else {
-                    predicate = cb.greaterThanOrEqualTo(root.get(input.getField()), getFrom(input, rootFieldType));
-                }
-
-                break;
-            case LESS_THAN:
-                predicate = cb.lessThanOrEqualTo(root.get(input.getField()), getTo(input, rootFieldType));
-                break;
-            default:
+            case JOIN -> predicate = isNull(input.getValue()) ? cb.isNull(rootField) : getPredicateJoin(input, root, cb);
+            case EQUALS -> predicate = isNull(input.getValue()) ?
+                                       cb.isNull(rootField) :
+                                       cb.equal(rootFieldUpper, castToRequiredType(rootFieldType, input.getValue()));
+            case LIKE -> predicate = cb.like((Expression<String>) rootFieldUpper, input.getValue().toString().toUpperCase());
+            case IN -> predicate = (String.class.isAssignableFrom(rootFieldType)) ?
+                                   getInPredicate(input, cb, root) :
+                                   cb.in(root.get(input.getField())).value(castToList(rootFieldType, (List<String>) input.getValues()));
+            case BETWEEN -> predicate = getBetween(input, cb, rootField, rootFieldType);
+            case GREATER_THAN -> predicate = (String.class.isAssignableFrom(rootFieldType)) ?
+                                             cb.greaterThanOrEqualTo((Expression<String>) rootFieldUpper,
+                                                     cb.literal((String) getFrom(input, rootFieldType))) :
+                                             cb.greaterThanOrEqualTo(root.get(input.getField()), getFrom(input, rootFieldType));
+            case LESS_THAN -> predicate = cb.lessThanOrEqualTo(root.get(input.getField()), getTo(input, rootFieldType));
+            default -> {
                 log.warn("Operation not supported");
                 throw new HiperBootException("Operation not supported");
+            }
+
         }
         if (NOT.equals(input.getWrappedLogicalOperator())) {
             return cb.not(predicate);
