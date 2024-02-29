@@ -457,6 +457,8 @@ Did I remember to invite you to check out a cool, runnable example? I'm not enti
 Also, if you find the project intriguing or useful, don't forget to leave a ⭐ on [this repository](https://github.com/sannonaragao/hiperboot/). Your star would be a great encouragement for us to continue improving!
 
 ---
+## TODO/IDEAS
+ - Create queries based on URL parameters
 
 ## License
 
