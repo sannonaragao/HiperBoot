@@ -107,6 +107,7 @@ public class HiperBootFilterGenerator<T> {
                                                      cb.literal((String) getFrom(input, rootFieldType))) :
                                              cb.greaterThanOrEqualTo(root.get(input.getField()), getFrom(input, rootFieldType));
             case LESS_THAN -> predicate = cb.lessThanOrEqualTo(root.get(input.getField()), getTo(input, rootFieldType));
+            case EMPTY -> predicate = cb.isEmpty(root.get(input.getField()));
             default -> {
                 log.warn("Operation not supported");
                 throw new HiperBootException("Operation not supported");
@@ -138,10 +139,6 @@ public class HiperBootFilterGenerator<T> {
                     throw new HiperBootException(String.format(errorMsgOperation, input.getOperator(),
                             input.getType(), input.getField()));
                 }
-                break;
-            case JOIN:
-                break;
-            case EQUALS:
                 break;
             case LIKE:
                 if (!String.class.isAssignableFrom(input.getType())) {

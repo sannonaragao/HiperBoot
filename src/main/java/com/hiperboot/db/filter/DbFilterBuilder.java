@@ -136,11 +136,13 @@ public final class DbFilterBuilder {
                 .originalClass(clazz)
                 .build();
 
-        if ((filter.isEntity() && filterValue instanceof Map) || hasAnnotation(fieldList.get(key).toString(), Entity.class)) {
-            filter.setOperator(QueryOperator.JOIN);
+        var className = fieldList.get(key).toString();
+
+        if (filter.isEntity() || hasAnnotation(className, Entity.class)) {
+            filter.setOperator(isCollectionInterface(className) && isNull(filterValue) ? QueryOperator.EMPTY : QueryOperator.JOIN);
         }
 
-        if (!filter.isEntity() && isFieldEntity(filterValue) && !hasAnnotation(fieldList.get(key).toString(), Entity.class)) {
+        if (!filter.isEntity() && isFieldEntity(filterValue) && !hasAnnotation(className, Entity.class)) {
             filter.setOperator(QueryOperator.IN);
             filter.setValue(null);
             var listValues = convertToList(filter, filterValue);
@@ -259,6 +261,16 @@ public final class DbFilterBuilder {
         return field.getType();
     }
 
+    public static boolean isCollectionInterface(String className) {
+        try {
+            Class<?> clazz = Class.forName(className.substring("interface ".length()));
+            return Collection.class.isAssignableFrom(clazz) && clazz.isInterface();
+        }
+        catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
     public static boolean hasAnnotation(String className, Class<? extends Annotation> annotationClass) {
         try {
             if (className.startsWith("class ")) {
@@ -271,7 +283,7 @@ public final class DbFilterBuilder {
             return cls.isAnnotationPresent(annotationClass);
         }
         catch (ClassNotFoundException e) {
-            log.warn("ClassNotFoundException {} in hasAnnotation.", className);
+            log.info("ClassNotFoundException {} in hasAnnotation.", className);
             return false;
         }
     }

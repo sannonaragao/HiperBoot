@@ -15,11 +15,14 @@
  */
 package com.hiperboot.db.repository.hiperboot.author;
 
+import static com.hiperboot.util.HBUtils.hbIsNull;
+import static com.hiperboot.util.HBUtils.hbNot;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.sql.Date;
 import java.util.List;
 
+import org.assertj.core.api.AssertionsForInterfaceTypes;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -58,5 +61,41 @@ class AuthorStandardQueriesTest extends BaseTestClass {
         List<Author> authors = authorHiperBootRepository.findByName("Jane Austen");
         assertThat(authors).hasSize(1);
         assertThat(authors.get(0).getName()).isEqualTo("Jane Austen");
+    }
+
+    @Test
+    void isNullTest_ShouldReturnAuthorWithoutBooks() {
+        // Arrange
+        int expectedAuthorCount = 1;
+
+        // Act
+        List<Author> authorsWithoutBooks = authorHiperBootRepository.hiperBootFilter(Author.class, hbIsNull("books"));
+
+        // Assert
+        AssertionsForInterfaceTypes.assertThat(authorsWithoutBooks)
+                .as("Check if the number of authors without books matches the expected count")
+                .hasSize(expectedAuthorCount);
+
+        AssertionsForInterfaceTypes.assertThat(authorsWithoutBooks)
+                .as("Ensure the right author is returned")
+                .allMatch(author -> author.getName().equals("No Buck"));
+    }
+
+    @Test
+    void isNotNullTest_ShouldReturnAuthorWithoutBooks() {
+        // Arrange
+        int expectedAuthorCount = 5;
+
+        // Act
+        List<Author> authorsWithoutBooks = authorHiperBootRepository.hiperBootFilter(Author.class, hbNot(hbIsNull("books")));
+
+        // Assert
+        AssertionsForInterfaceTypes.assertThat(authorsWithoutBooks)
+                .as("Check if the number of authors without books matches the expected count")
+                .hasSize(expectedAuthorCount);
+
+        AssertionsForInterfaceTypes.assertThat(authorsWithoutBooks)
+                .as("Ensure the right author is returned")
+                .noneMatch(author -> author.getName().equals("No Buck"));
     }
 }
