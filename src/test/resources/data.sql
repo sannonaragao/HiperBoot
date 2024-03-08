@@ -42,6 +42,7 @@ INSERT INTO author (id, name, birthday) VALUES (2, 'George Orwell', '1903-06-25'
 INSERT INTO author (id, name, birthday) VALUES (3, 'Jane Austen', '1775-12-16');
 INSERT INTO author (id, name, birthday) VALUES (4, 'Mark Twain', '1835-11-30');
 INSERT INTO author (id, name, birthday) VALUES (5, 'Leo Tolstoy', '1828-09-09');
+INSERT INTO author (id, name, birthday) VALUES (6, 'No Buck', '1975-03-02');
 
 INSERT INTO book (title, author_id, price, published, deleted) VALUES ('Harry Potter and the Sorcerer''s Stone', 1, 1.2, '1998-09-01 08:00:00', false);
 INSERT INTO book (title, author_id, price, published, deleted) VALUES ('Harry Potter and the Chamber of Secrets', 1, 2, '1998-07-02 18:00:00', false);

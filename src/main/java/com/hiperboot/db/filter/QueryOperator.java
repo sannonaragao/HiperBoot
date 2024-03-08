@@ -22,5 +22,6 @@ public enum QueryOperator {
     IN,
     BETWEEN,
     GREATER_THAN,
-    LESS_THAN
+    LESS_THAN,
+    EMPTY
 }
