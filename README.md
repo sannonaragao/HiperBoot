@@ -13,6 +13,8 @@ If you're working with Spring and JPA you've always needed something like HiperB
 
 HiperBoot simplifies query building by utilizing existing relationships between entities, providing advanced features like filtering, pagination, and sorting. Designed for compatibility with various SQL databases, it delivers optimized query performance and strong protection against SQL Injection attacks.
 
+If you want to jump ahead and check a practical example of how to return data "as an Excel spreadsheet" from any entity and its relationships using just 3 lines of code you can check this repository [HiperBoot Service Example](https://github.com/sannonaragao/HiperBoot-service-example).  Just be sure to return here right after and read the basic documentation.
+
 ---
 
 ## Integrating HiperBoot into Your Project
@@ -31,15 +33,16 @@ Just, use your favorite build tool.
 ```
 **Gradle**
 ```gradle
-implementation group: 'io.github.sannonaragao', name: 'hiperboot', version: '0.5.0+'
+implementation group: 'io.github.sannonaragao', name: 'hiperboot', version: '0.5.1+'
 ```
 
 ### Choose how to integrate: Extension of Spring Repository or Standalone Service
 There are 2 ways to use HiperBoot in your Spring Boot application: 1) Using as an extension of the Spring repository or 2) as a Standalone Service.
 
 ---
+
 #### Using as a Standalone Service
-Add to the Spring repository you want to retrieve data the Spring interface JpaSpecificationExecutor as the example below:
+Add to the Spring repository you want to retrieve data the Spring interface <span style="color: red; font-weight: bold;">JpaSpecificationExecutor&lt;Book&gt;</span> as the example below:
 
 ```java
 public interface BookRepository extends JpaRepository<Book, Long>, JpaSpecificationExecutor<Book>
