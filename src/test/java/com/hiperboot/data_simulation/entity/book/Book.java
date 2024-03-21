@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.entity;
+package com.hiperboot.data_simulation.entity.book;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import com.hiperboot.db.persistence.RetrievalStrategy;
+import com.hiperboot.db.persistence.Strategy;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,20 +35,23 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "child_table")
-public class ChildTable {
+@Table(name = "book")
+public class Book {
 
     @Id
-    @Column(name = "name")
-    private String name;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    private Integer number;
+    @Column(name = "title")
+    private String title;
 
     @ManyToOne
-    @JoinColumn(name = "parent_id")
-    private ParentTable parent;
+    @JoinColumn(name = "author_id")
+    @RetrievalStrategy(Strategy.JOIN)
+    private Author author;
+    private BigDecimal price;
+    private LocalDateTime published;
 
-    @OneToMany
-    @JoinColumn(name = "child_table_name", updatable = false, insertable = false)
-    private List<GranChildTable> granChild;
+    @Column(nullable = false)
+    private Boolean deleted;
 }

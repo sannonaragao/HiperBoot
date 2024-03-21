@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository.hiperboot.book;
+package com.hiperboot.data_simulation;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+public enum StatusEnum {
+    ON,
+    OFF,
+    HIGH;
 
-import com.hiperboot.db.entity.book.Book;
-import com.hiperboot.db.repository.HiperBootRepository;
-
-@Repository
-public interface BookHiperBootRepository extends HiperBootRepository<Book>, JpaRepository<Book, Long> {
+    private StatusEnum() {
+    }
 }

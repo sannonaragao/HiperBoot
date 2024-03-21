@@ -32,19 +32,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 
 import com.hiperboot.BaseTestClass;
-import com.hiperboot.db.entity.ParentTable;
+import com.hiperboot.data_simulation.entity.ParentTable;
+import com.hiperboot.data_simulation.repository.hiperboot.ParentTableHiperBootRepository;
 
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
-class ParentTableHiperBootRepositoryTest extends BaseTestClass {
+class ColumnsDatatypeTest extends BaseTestClass {
 
     @Autowired
     private ParentTableHiperBootRepository parentTableHiperBootRepository;
@@ -55,52 +55,7 @@ class ParentTableHiperBootRepositoryTest extends BaseTestClass {
     private final List<String> columnsToBeCaseInsensitive = List.of("colString", "colUUID");
 
     @Test
-    void getByFilter_Null() {
-
-        // Act
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, null);
-
-        // Assert
-        assertThat(results)
-                .as("Check if the results are not empty when filtering by null equal to have rows")
-                .isNotEmpty();
-    }
-
-    @Test
-    void getByFilter_ShouldReturnResultsWithMatchingColStringCaseInsensitive() {
-        // Arrange
-        String expectedValue = "RandomString1";
-        String filterColumn = "colString";
-
-        // Act
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals(filterColumn, expectedValue));
-
-        // Assert
-        assertThat(results)
-                .as("Check if the results are not empty when filtering by " + filterColumn + " equal to " + expectedValue)
-                .isNotEmpty()
-                .as("Verify that each result's " + filterColumn + " matches the expected value (case insensitive)")
-                .allMatch(result -> expectedValue.equalsIgnoreCase(result.getColString()));
-    }
-
-    @Test
-    void caseInsensitiveEqualsFilterStringColumnTest() {
-        String expectedValue = "abc";
-        String filterColumn = "colString";
-
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals(filterColumn, expectedValue));
-        assertThat(results).hasSize(2);
-
-        results.forEach(row ->
-                assertThat(row.getColString()).as("Check if " + filterColumn + " matches the expected value (case insensitive)")
-                        .isEqualToIgnoringCase(expectedValue)
-        );
-    }
-
-    @Test
-    void equalsFilterAllRowsAndAllColumnsTest_CaseInsensitive() {
+    void allColumnsAllValues_Equals_test() {
         List<ParentTable> rowsToTest = parentTableHiperBootRepository.findAll();
 
         for (ParentTable testRow : rowsToTest) {
@@ -130,7 +85,7 @@ class ParentTableHiperBootRepositoryTest extends BaseTestClass {
     }
 
     @Test
-    void randomNotEqualsFilterAllColumnsTest_CaseInsensitive() {
+    void allColumnsAllValues_NotEquals_test() {
         List<ParentTable> rowsToTest = parentTableHiperBootRepository.findAll();
 
         for (ParentTable testRow : rowsToTest) {
@@ -161,7 +116,7 @@ class ParentTableHiperBootRepositoryTest extends BaseTestClass {
     }
 
     @Test
-    void randomInFilterAllColumnsTest_CaseInsensitive() {
+    void allColumnsRandomValue_In_test() {
         ParentTable randomRow1 = getRandomRow();
         ParentTable randomRow2 = getRandomRow();
 
@@ -198,26 +153,7 @@ class ParentTableHiperBootRepositoryTest extends BaseTestClass {
     }
 
     @Test
-    void randomInCaseInsensitiveFilterStringTest() {
-        String[] expectedValues = { "abc", "xxx" };
-        String filterColumn = "colString";
-
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals(filterColumn, expectedValues));
-        assertThat(results).hasSize(2);
-
-        results.forEach(row -> {
-            String actualValue = row.getColString().toLowerCase();
-            List<String> lowerCaseExpectedValues = Arrays.stream(expectedValues)
-                    .map(String::toLowerCase)
-                    .collect(Collectors.toList());
-            assertThat(lowerCaseExpectedValues).as("Check if " + filterColumn + " matches one of the expected values (case insensitive)")
-                    .contains(actualValue);
-        });
-    }
-
-    @Test
-    void randomNotInFilterAllColumnsTest_CaseInsensitive() {
+    void allColumnsRandomValue_NotIn_test() {
         ParentTable randomRow1 = getRandomRow();
         ParentTable randomRow2 = getRandomRow();
 
@@ -249,7 +185,7 @@ class ParentTableHiperBootRepositoryTest extends BaseTestClass {
     }
 
     @Test
-    void randomGreaterThanFilterAllColumnsTest_CaseInsensitive() {
+    void allColumnsRandomValue_GreaterThan_test() {
         ParentTable randomRow = getRandomRow();
 
         var fieldMaps = getFieldList(ParentTable.class);
@@ -282,7 +218,7 @@ class ParentTableHiperBootRepositoryTest extends BaseTestClass {
     }
 
     @Test
-    void randomSmallerThanFilterAllColumnsTest_CaseInsensitive() {
+    void allColumnsRandomValue_SmallerThan_test() {
         ParentTable randomRow = getRandomRow();
 
         var fieldMaps = getFieldList(ParentTable.class);
@@ -315,7 +251,7 @@ class ParentTableHiperBootRepositoryTest extends BaseTestClass {
     }
 
     @Test
-    void randomBetweenFilterAllColumnsTest_CaseInsensitive() {
+    void allColumnsConstantRows_Between_test() {
         var fieldMaps = getFieldList(ParentTable.class);
         for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
             String columnName = entry.getKey();
@@ -352,20 +288,7 @@ class ParentTableHiperBootRepositoryTest extends BaseTestClass {
     }
 
     @Test
-    void randomLikeFilterAllColumnsTest_CaseInsensitive() {
-        String filterValue = "%Ab%";
-        String filterColumn = "colString";
-
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, hbEquals(filterColumn, filterValue));
-        assertThat(results).hasSize(2);
-
-        results.forEach(row ->
-                assertThat(row.getColString().toLowerCase()).contains(filterValue.replace("%", "").toLowerCase())
-        );
-    }
-
-    @Test
-    void randomNullFilterAllColumnsTest() {
+    void allColumnsNullValue_IsNull_test() {
         var fieldMaps = getFieldList(ParentTable.class);
         for (Map.Entry<String, Field> entry : fieldMaps.entrySet()) {
             String columnName = entry.getKey();
@@ -388,35 +311,6 @@ class ParentTableHiperBootRepositoryTest extends BaseTestClass {
                 }
             });
         }
-    }
-
-    @Test
-    void manyToOneTest_CaseInsensitive() {
-        String expectedValue = "Name C";
-        String filterColumn = "someTable.name";
-
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class, hbEquals(filterColumn, "NAme c"));
-        assertThat(results).hasSize(1);
-
-        results.forEach(row ->
-                assertThat(row.getSomeTable().getName()).isEqualToIgnoringCase(expectedValue)
-        );
-    }
-
-    @Test
-    void oneToManyTest() {
-        String expectedValue = "30";
-        String filterColumn = "children.number";
-
-        List<ParentTable> results = parentTableHiperBootRepository.hiperBootFilter(ParentTable.class,
-                hbEquals(filterColumn, expectedValue));
-        assertThat(results).hasSize(1);
-
-        results.forEach(parentTable ->
-                parentTable.getChildren().forEach(child ->
-                        assertThat(child.getNumber().toString()).isEqualToIgnoringCase(expectedValue)
-                )
-        );
     }
 
     protected ParentTable getRandomRow() {

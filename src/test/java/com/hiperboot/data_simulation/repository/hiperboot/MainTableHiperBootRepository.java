@@ -13,28 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository.hiperboot.author;
-
-import java.sql.Date;
-import java.util.List;
+package com.hiperboot.data_simulation.repository.hiperboot;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.hiperboot.db.entity.book.Author;
+import com.hiperboot.data_simulation.entity.MainTable;
 import com.hiperboot.db.repository.HiperBootRepository;
 
 @Repository
-public interface AuthorHiperBootRepository extends HiperBootRepository<Author>, JpaRepository<Author, Long> {
-    List<Author> findByBooks_Title(String title);
-
-    @Query("SELECT a FROM Author a WHERE a.name = ?1")
-    List<Author> findAuthorsByName(String name);
-
-    @Query(value = "SELECT * FROM author WHERE birthday > ?1", nativeQuery = true)
-    List<Author> findAuthorsBornAfter(Date date);
-
-    List<Author> findByName(@Param("name") String name);
+public interface MainTableHiperBootRepository extends HiperBootRepository<MainTable>, JpaRepository<MainTable, Long> {
 }

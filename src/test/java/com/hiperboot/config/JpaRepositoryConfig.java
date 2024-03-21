@@ -18,7 +18,9 @@ package com.hiperboot.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+import com.hiperboot.data_simulation.repository.jpa.ParentTableStandardRepository;
+
 @Configuration
-@EnableJpaRepositories(basePackages = { "com.hiperboot.db.repository.jpa" })
+@EnableJpaRepositories(basePackageClasses = ParentTableStandardRepository.class)
 public class JpaRepositoryConfig {
 }

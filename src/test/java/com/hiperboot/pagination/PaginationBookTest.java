@@ -25,8 +25,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.hiperboot.BaseTestClass;
-import com.hiperboot.db.entity.book.Book;
-import com.hiperboot.db.repository.hiperboot.book.BookHiperBootRepository;
+import com.hiperboot.data_simulation.entity.book.Book;
+import com.hiperboot.data_simulation.repository.hiperboot.book.BookHiperBootRepository;
 
 class PaginationBookTest extends BaseTestClass {
 

@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.entity.book;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-import com.hiperboot.db.persistence.RetrievalStrategy;
-import com.hiperboot.db.persistence.Strategy;
+package com.hiperboot.data_simulation.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -35,23 +27,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "book")
-public class Book {
+@Table(name = "gran_child_table")
+public class GranChildTable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "gran_name")
+    private String granName;
 
-    @Column(name = "title")
-    private String title;
+    private String something;
 
     @ManyToOne
-    @JoinColumn(name = "author_id")
-    @RetrievalStrategy(Strategy.JOIN)
-    private Author author;
-    private BigDecimal price;
-    private LocalDateTime published;
-
-    @Column(nullable = false)
-    private Boolean deleted;
+    @JoinColumn(name = "child_table_name", referencedColumnName = "name")
+    private ChildTable childTable;
 }
