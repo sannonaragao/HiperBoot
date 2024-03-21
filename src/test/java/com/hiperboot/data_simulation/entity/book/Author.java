@@ -13,14 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository.hiperboot;
+package com.hiperboot.data_simulation.entity.book;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import java.util.Date;
+import java.util.Set;
 
-import com.hiperboot.db.entity.ParentTable;
-import com.hiperboot.db.repository.HiperBootRepository;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
-@Repository
-public interface ParentTableHiperBootRepository extends HiperBootRepository<ParentTable>, JpaRepository<ParentTable, Long> {
+@Getter
+@Setter
+@Entity
+@Table(name = "author")
+public class Author {
+
+    @Id
+    private Long id;
+
+    @Column(name = "name")
+    private String name;
+    private Date birthday;
+
+    @OneToMany(mappedBy = "author")
+    private Set<Book> books;
 }

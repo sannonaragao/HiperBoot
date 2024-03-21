@@ -19,10 +19,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.hiperboot.db.repository.HiperBootRepositoryFactoryBean;
+import com.hiperboot.data_simulation.repository.hiperboot.MainTableHiperBootRepository;
 
 @Configuration
-@EnableJpaRepositories(repositoryFactoryBeanClass = HiperBootRepositoryFactoryBean.class, basePackages = {
-        "com.hiperboot.db.repository.hiperboot"
+@EnableJpaRepositories(repositoryFactoryBeanClass = HiperBootRepositoryFactoryBean.class, basePackageClasses = {
+        MainTableHiperBootRepository.class
 })
 public class HiperBootRepositoryConfig {
 }

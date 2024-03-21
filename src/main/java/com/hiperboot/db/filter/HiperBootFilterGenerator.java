@@ -90,7 +90,7 @@ public class HiperBootFilterGenerator<T> {
             Expression<Comparable> rootField,
             Class<?> rootFieldType,
             Expression<?> rootFieldUpper) {
-        Predicate predicate = null;
+        Predicate predicate;
         validateTypeByOperation(input);
         switch (input.getOperator()) {
             case JOIN -> predicate = isNull(input.getValue()) ? cb.isNull(rootField) : getPredicateJoin(input, root, cb);
@@ -122,31 +122,29 @@ public class HiperBootFilterGenerator<T> {
     }
 
     private void validateTypeByOperation(DbFilter input) {
-        final String errorMsgOperation = "Can't perform a {} operation with a {} for field {}";
+        final String errorMsgOperation = "Can't perform a %s operation with a %s for field %s";
         switch (input.getOperator()) {
             case IN:
                 if (Boolean.class.isAssignableFrom(input.getType()) || boolean.class.isAssignableFrom(input.getType())) {
-                    log.warn(errorMsgOperation, input.getOperator(), input.getType(), input.getField());
-                    throw new HiperBootException(
-                            String.format(errorMsgOperation, input.getOperator(), input.getType(),
-                                    input.getField()));
+                    log.warn(String.format(errorMsgOperation, input.getOperator(), input.getType(), input.getField()));
+                    throw new HiperBootException(String.format(errorMsgOperation, input.getOperator(), input.getType(), input.getField()));
                 }
                 break;
             case GREATER_THAN, LESS_THAN, BETWEEN:
                 if ((Enum.class.isAssignableFrom(input.getType())) ||
                     (Boolean.class.isAssignableFrom(input.getType()) || boolean.class.isAssignableFrom(input.getType()))) {
-                    log.warn(errorMsgOperation, input.getOperator(), input.getType(), input.getField());
-                    throw new HiperBootException(String.format(errorMsgOperation, input.getOperator(),
-                            input.getType(), input.getField()));
+                    log.warn(String.format(errorMsgOperation, input.getOperator(), input.getType(), input.getField()));
+                    throw new HiperBootException(String.format(errorMsgOperation, input.getOperator(), input.getType(), input.getField()));
                 }
                 break;
             case LIKE:
                 if (!String.class.isAssignableFrom(input.getType())) {
-                    log.warn(errorMsgOperation, input.getOperator(), input.getType(), input.getField());
-                    throw new HiperBootException(String.format(errorMsgOperation, input.getOperator(),
-                            input.getType(), input.getField()));
+                    log.warn(String.format(errorMsgOperation, input.getOperator(), input.getType(), input.getField()));
+                    throw new HiperBootException(String.format(errorMsgOperation, input.getOperator(), input.getType(), input.getField()));
                 }
                 break;
+            default:
+                log.trace("validateTypeByOperation for type " + input.getOperator() + " not necessary.");
         }
     }
 

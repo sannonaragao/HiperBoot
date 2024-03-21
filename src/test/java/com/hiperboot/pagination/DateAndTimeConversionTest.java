@@ -30,8 +30,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.hiperboot.BaseTestClass;
-import com.hiperboot.db.entity.ParentTable;
-import com.hiperboot.db.repository.hiperboot.ParentTableHiperBootRepository;
+import com.hiperboot.data_simulation.entity.ParentTable;
+import com.hiperboot.data_simulation.repository.hiperboot.ParentTableHiperBootRepository;
 
 class DateAndTimeConversionTest extends BaseTestClass {
 

@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.entity.book;
+package com.hiperboot.data_simulation.entity;
 
-import java.util.Date;
-import java.util.Set;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,16 +28,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "author")
-public class Author {
+@Table(name = "main_table")
+public class MainTable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name")
-    private String name;
-    private Date birthday;
+    private String description;
 
-    @OneToMany(mappedBy = "author")
-    private Set<Book> books;
+    @ManyToOne
+    @JoinColumn(name = "child_table_id")
+    private ChildTable childTable;
 }

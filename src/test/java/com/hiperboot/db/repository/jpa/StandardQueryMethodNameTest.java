@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.repository.hiperboot.author;
+package com.hiperboot.db.repository.jpa;
 
 import static com.hiperboot.util.HBUtils.hbIsNull;
 import static com.hiperboot.util.HBUtils.hbNot;
@@ -27,9 +27,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.hiperboot.BaseTestClass;
-import com.hiperboot.db.entity.book.Author;
+import com.hiperboot.data_simulation.entity.book.Author;
+import com.hiperboot.data_simulation.repository.hiperboot.author.AuthorHiperBootRepository;
 
-class AuthorStandardQueriesTest extends BaseTestClass {
+class StandardQueryMethodNameTest extends BaseTestClass {
     @Autowired
     private AuthorHiperBootRepository authorHiperBootRepository;
 

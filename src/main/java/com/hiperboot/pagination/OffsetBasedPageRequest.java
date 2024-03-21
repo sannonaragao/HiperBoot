@@ -15,6 +15,7 @@
  */
 package com.hiperboot.pagination;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ import lombok.extern.log4j.Log4j2;
 @ToString
 @EqualsAndHashCode
 public class OffsetBasedPageRequest implements Pageable, Serializable {
+    @Serial
     private static final long serialVersionUID = -25822477129613575L;
 
     private final int limit;

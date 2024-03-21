@@ -42,11 +42,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 
 import com.hiperboot.BaseTestClass;
-import com.hiperboot.db.entity.ParentTable;
+import com.hiperboot.data_simulation.entity.ParentTable;
+import com.hiperboot.data_simulation.repository.jpa.ParentTableStandardRepository;
 import com.hiperboot.service.HiperBootService;
 
 @SpringBootTest
-class ParentTableStandardRepositoryTest extends BaseTestClass {
+class JpaStandardRepositoryTest extends BaseTestClass {
     private final List<String> columnsGreaterThanIncompatible = List.of("colBoolean", "colStatusEnum", "someTable", "children", "colUUID");
     private final List<String> columnsInIncompatible = List.of("colBoolean", "someTable", "children");
     private final List<String> columnsThatAreEntities = List.of("someTable", "children");
@@ -55,7 +56,7 @@ class ParentTableStandardRepositoryTest extends BaseTestClass {
     private final ParentTableStandardRepository repository;
     private final HiperBootService<ParentTable> parentTableHiperBootService;
 
-    public ParentTableStandardRepositoryTest(@Autowired ParentTableStandardRepository repository) {
+    public JpaStandardRepositoryTest(@Autowired ParentTableStandardRepository repository) {
         this.repository = repository;
         this.parentTableHiperBootService = new HiperBootService<>(repository);
     }

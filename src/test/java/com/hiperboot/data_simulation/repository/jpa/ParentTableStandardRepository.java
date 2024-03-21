@@ -13,27 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.entity;
+package com.hiperboot.data_simulation.repository.jpa;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.stereotype.Repository;
 
-@Getter
-@Setter
-@Entity
-@Table(name = "some_table")
-public class SomeTable {
+import com.hiperboot.data_simulation.entity.ParentTable;
 
-    @Id
-    private Long id;
-
-    @Column(name = "name")
-    private String name;
-
-    @Column(name = "value")
-    private Integer value;
+@Repository
+public interface ParentTableStandardRepository extends JpaRepository<ParentTable, Long>, JpaSpecificationExecutor<ParentTable> {
 }

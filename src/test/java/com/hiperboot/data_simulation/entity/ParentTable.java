@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.entity;
+package com.hiperboot.data_simulation.entity;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -26,7 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import com.hiperboot.db.StatusEnum;
+import com.hiperboot.data_simulation.StatusEnum;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

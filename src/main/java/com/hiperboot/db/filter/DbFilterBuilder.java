@@ -192,10 +192,8 @@ public final class DbFilterBuilder {
     }
 
     private static boolean isFieldEntity(Object field) {
-        if (field instanceof Map map) {
-            if (map.containsKey("from") || map.containsKey("to")) {
-                return false;
-            }
+        if (field instanceof Map map && (map.containsKey("from") || map.containsKey("to"))) {
+            return false;
         }
         return field instanceof Collection || field instanceof Map || (field instanceof Class<?> clazz && (
                 clazz.isAssignableFrom(List.class) || clazz.isAssignableFrom(Set.class)));
@@ -232,7 +230,6 @@ public final class DbFilterBuilder {
                 }
             }
         }
-
         return fieldsMap;
     }
 

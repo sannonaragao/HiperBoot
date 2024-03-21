@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hiperboot.db.entity;
+package com.hiperboot.data_simulation.entity;
 
+import java.util.List;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,16 +30,20 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "main_table")
-public class MainTable {
+@Table(name = "child_table")
+public class ChildTable {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "name")
+    private String name;
 
-    private String description;
+    private Integer number;
 
     @ManyToOne
-    @JoinColumn(name = "child_table_id")
-    private ChildTable childTable;
+    @JoinColumn(name = "parent_id")
+    private ParentTable parent;
+
+    @OneToMany
+    @JoinColumn(name = "child_table_name", updatable = false, insertable = false)
+    private List<GranChildTable> granChild;
 }
