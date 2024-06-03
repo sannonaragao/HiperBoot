@@ -29,6 +29,7 @@ Just, use your favorite build tool.
     <groupId>io.github.sannonaragao</groupId>
     <name>hiperboot</name>
     <version>[LATEST]</version>
+    <type>pom</type>
 </dependency>
 ```
 **Gradle**
